@@ -57,8 +57,8 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-4 animate-fade-in animate-delay-400">
               {[
-                { value: '15+', label: 'лет на рынке' },
-                { value: '500+', label: 'видов древесины' },
+                { value: '10+', label: 'лет на рынке' },
+                { value: '200+', label: 'видов древесины' },
                 { value: '2000+', label: 'довольных клиентов' },
               ].map(stat => (
                 <div key={stat.label} className="text-center">

@@ -24,7 +24,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               <span className="font-display text-2xl font-bold">ЭкоДрев</span>
             </div>
             <p className="text-eco-300 text-sm leading-relaxed max-w-xs">
-              Производим и продаём качественный пиломатериал с 2009 года. Прямо от производителя — без посредников.
+              Производим и продаём качественный пиломатериал уже 10 лет. Прямо от производителя — без посредников.
             </p>
           </div>
 
@@ -62,7 +62,7 @@ export default function Footer({ onNavigate }: FooterProps) {
 
         <div className="border-t border-eco-700 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
           <div className="text-eco-500 text-sm">
-            © 2024 ЭкоДрев. Все права защищены.
+            © 2026 ЭкоДрев. Все права защищены.
           </div>
           <div className="flex gap-6 text-eco-500 text-xs">
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Политика конфиденциальности</span>
