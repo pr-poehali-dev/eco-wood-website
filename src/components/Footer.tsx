@@ -60,10 +60,15 @@ export default function Footer({ onNavigate }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-eco-700 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="border-t border-eco-700 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-eco-500 text-sm">
             © 2026 ЭкоДрев. Все права защищены.
           </div>
+          <img
+            src="https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/5ac07b30-fd34-42d8-9dca-751a40b66bf3.png"
+            alt="MRSU"
+            className="h-8 opacity-70"
+          />
           <div className="flex gap-6 text-eco-500 text-xs">
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Политика конфиденциальности</span>
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Условия использования</span>
