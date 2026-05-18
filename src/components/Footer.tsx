@@ -67,7 +67,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           <img
             src="https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/5ac07b30-fd34-42d8-9dca-751a40b66bf3.png"
             alt="MRSU"
-            className="h-14 opacity-70"
+            className="h-20 opacity-70"
           />
           <div className="flex gap-6 text-eco-500 text-xs">
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Политика конфиденциальности</span>
