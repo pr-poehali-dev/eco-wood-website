@@ -102,11 +102,10 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
             <div>
               <label className="text-eco-700 text-sm font-medium block mb-2">
-                E-mail *
-                <span className="ml-1 text-eco-400 font-normal text-xs">(пришлём счёт на оплату)</span>
+                E-mail
+                <span className="ml-1 text-eco-400 font-normal text-xs">(для счёта на оплату)</span>
               </label>
               <input
-                required
                 type="email"
                 placeholder="example@mail.ru"
                 value={form.email}

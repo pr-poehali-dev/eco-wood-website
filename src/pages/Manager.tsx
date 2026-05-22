@@ -7,7 +7,6 @@ interface Order {
   date: string;
   client: string;
   phone: string;
-  email: string;
   city: string;
   product: string;
   qty: number;
@@ -17,12 +16,12 @@ interface Order {
 }
 
 const initialOrders: Order[] = [
-  { id: 'ЭД-001', date: '2026-05-20', client: 'Сергей Воронин', phone: '+7 (901) 234-56-78', email: 'voronin.s@mail.ru', city: 'Москва', product: 'Брус сосновый 150×150', qty: 5, unit: 'м³', total: 72500, status: 'delivered' },
-  { id: 'ЭД-002', date: '2026-05-21', client: 'Елена Краснова', phone: '+7 (911) 345-67-89', email: 'krasnova.e@gmail.com', city: 'Санкт-Петербург', product: 'Террасная доска лиственница', qty: 20, unit: 'м²', total: 360000, status: 'confirmed' },
-  { id: 'ЭД-003', date: '2026-05-21', client: 'Антон Беляков', phone: '+7 (921) 456-78-90', email: 'belyakov@yandex.ru', city: 'Нижний Новгород', product: 'Доска обрезная 25×150', qty: 30, unit: 'м³', total: 255000, status: 'new' },
-  { id: 'ЭД-004', date: '2026-05-22', client: 'Ирина Соколова', phone: '+7 (931) 567-89-01', email: '', city: 'Москва', product: 'Вагонка сосновая', qty: 15, unit: 'м²', total: 102000, status: 'new' },
-  { id: 'ЭД-005', date: '2026-05-22', client: 'Николай Фёдоров', phone: '+7 (941) 678-90-12', email: 'fedorov.nn@mail.ru', city: 'Санкт-Петербург', product: 'Брус сосновый 100×100', qty: 10, unit: 'м³', total: 120000, status: 'confirmed' },
-  { id: 'ЭД-006', date: '2026-05-22', client: 'Анастасия Миронова', phone: '+7 (951) 789-01-23', email: 'mironova.a@gmail.com', city: 'Нижний Новгород', product: 'Блок-хаус сосна', qty: 25, unit: 'м²', total: 230000, status: 'new' },
+  { id: 'ЭД-001', date: '2026-05-20', client: 'Сергей Воронин', phone: '+7 (901) 234-56-78', city: 'Москва', product: 'Брус сосновый 150×150', qty: 5, unit: 'м³', total: 72500, status: 'delivered' },
+  { id: 'ЭД-002', date: '2026-05-21', client: 'Елена Краснова', phone: '+7 (911) 345-67-89', city: 'Санкт-Петербург', product: 'Террасная доска лиственница', qty: 20, unit: 'м²', total: 360000, status: 'confirmed' },
+  { id: 'ЭД-003', date: '2026-05-21', client: 'Антон Беляков', phone: '+7 (921) 456-78-90', city: 'Нижний Новгород', product: 'Доска обрезная 25×150', qty: 30, unit: 'м³', total: 255000, status: 'new' },
+  { id: 'ЭД-004', date: '2026-05-22', client: 'Ирина Соколова', phone: '+7 (931) 567-89-01', city: 'Москва', product: 'Вагонка сосновая', qty: 15, unit: 'м²', total: 102000, status: 'new' },
+  { id: 'ЭД-005', date: '2026-05-22', client: 'Николай Фёдоров', phone: '+7 (941) 678-90-12', city: 'Санкт-Петербург', product: 'Брус сосновый 100×100', qty: 10, unit: 'м³', total: 120000, status: 'confirmed' },
+  { id: 'ЭД-006', date: '2026-05-22', client: 'Анастасия Миронова', phone: '+7 (951) 789-01-23', city: 'Нижний Новгород', product: 'Блок-хаус сосна', qty: 25, unit: 'м²', total: 230000, status: 'new' },
 ];
 
 const statusLabel: Record<Order['status'], string> = {
@@ -52,9 +51,9 @@ export default function Manager() {
   };
 
   const downloadCSV = () => {
-    const header = 'ID,Дата,Клиент,Телефон,Email,Город,Товар,Количество,Ед,Сумма,Статус\n';
+    const header = 'ID,Дата,Клиент,Телефон,Город,Товар,Количество,Ед,Сумма,Статус\n';
     const rows = filtered.map(o =>
-      `${o.id},${o.date},"${o.client}",${o.phone},${o.email},"${o.city}","${o.product}",${o.qty},${o.unit},${o.total},${statusLabel[o.status]}`
+      `${o.id},${o.date},"${o.client}",${o.phone},"${o.city}","${o.product}",${o.qty},${o.unit},${o.total},${statusLabel[o.status]}`
     ).join('\n');
     const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -145,7 +144,6 @@ export default function Manager() {
                   <th className="text-left px-4 py-3 text-eco-600 font-semibold">№</th>
                   <th className="text-left px-4 py-3 text-eco-600 font-semibold">Дата</th>
                   <th className="text-left px-4 py-3 text-eco-600 font-semibold">Клиент</th>
-                  <th className="text-left px-4 py-3 text-eco-600 font-semibold">E-mail для чека</th>
                   <th className="text-left px-4 py-3 text-eco-600 font-semibold">Город</th>
                   <th className="text-left px-4 py-3 text-eco-600 font-semibold">Товар</th>
                   <th className="text-right px-4 py-3 text-eco-600 font-semibold">Кол-во</th>
@@ -162,18 +160,6 @@ export default function Manager() {
                     <td className="px-4 py-3">
                       <div className="font-medium text-eco-800">{order.client}</div>
                       <div className="text-eco-400 text-xs">{order.phone}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {order.email ? (
-                        <a
-                          href={`mailto:${order.email}`}
-                          className="text-eco-600 hover:text-eco-900 text-xs underline underline-offset-2 transition-colors"
-                        >
-                          {order.email}
-                        </a>
-                      ) : (
-                        <span className="text-eco-300 text-xs italic">не указан</span>
-                      )}
                     </td>
                     <td className="px-4 py-3 text-eco-600">{order.city}</td>
                     <td className="px-4 py-3 text-eco-700">{order.product}</td>
@@ -201,7 +187,7 @@ export default function Manager() {
               </tbody>
               <tfoot className="bg-eco-50 border-t border-eco-200">
                 <tr>
-                  <td colSpan={7} className="px-4 py-3 text-right text-eco-600 font-semibold text-sm">
+                  <td colSpan={6} className="px-4 py-3 text-right text-eco-600 font-semibold text-sm">
                     Итого по фильтру:
                   </td>
                   <td className="px-4 py-3 text-right font-bold text-eco-800">
