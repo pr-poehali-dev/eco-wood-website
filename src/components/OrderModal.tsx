@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
+const ORDERS_API = 'https://functions.poehali.dev/97eb501c-3e4e-4500-9867-e0cd38ce1d6a';
+
 interface CartItem {
   id: string;
   name: string;
@@ -20,17 +22,43 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', comment: '' });
   const [agreed, setAgreed] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep('success');
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(ORDERS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          comment: form.comment,
+          total,
+          items: items.map(i => ({ name: i.name, size: i.size, price: i.price, quantity: i.quantity })),
+        }),
+      });
+      if (!res.ok) throw new Error('Ошибка сервера');
+      setStep('success');
+    } catch {
+      setError('Не удалось отправить заказ. Позвоните нам напрямую.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
     setStep('form');
     setForm({ name: '', phone: '', email: '', address: '', comment: '' });
     setAgreed(false);
+    setError('');
     onClose();
     if (step === 'success') onSuccess();
   };
@@ -39,12 +67,9 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-eco-100">
           <div>
             <h2 className="font-display text-2xl font-semibold text-eco-800">Оформление заказа</h2>
@@ -60,7 +85,6 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
         {step === 'form' ? (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            {/* Order summary */}
             <div className="bg-eco-50 rounded-2xl border border-eco-100 p-4 space-y-2">
               <div className="text-eco-600 text-xs font-semibold uppercase tracking-wide mb-3">Состав заказа</div>
               {items.map(item => (
@@ -75,7 +99,6 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
               </div>
             </div>
 
-            {/* Form fields */}
             <div>
               <label className="text-eco-700 text-sm font-medium block mb-2">Ваше имя *</label>
               <input
@@ -156,13 +179,21 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
               </span>
             </label>
 
+            {error && (
+              <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{error}</p>
+            )}
+
             <button
               type="submit"
-              disabled={!agreed}
+              disabled={!agreed || loading}
               className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Icon name="Package" size={18} />
-              Подтвердить заказ
+              {loading ? (
+                <Icon name="Loader2" size={18} className="animate-spin" />
+              ) : (
+                <Icon name="Package" size={18} />
+              )}
+              {loading ? 'Отправляем...' : 'Подтвердить заказ'}
             </button>
 
             <p className="text-eco-400 text-xs text-center">

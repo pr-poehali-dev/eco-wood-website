@@ -1,20 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
+const ORDERS_API = 'https://functions.poehali.dev/97eb501c-3e4e-4500-9867-e0cd38ce1d6a';
 const GET_REQUESTS_URL = 'https://functions.poehali.dev/a53097dc-0bcc-4e6f-be7f-763852152b16';
 
+type OrderStatus = 'new' | 'confirmed' | 'delivered' | 'cancelled';
+
 interface Order {
-  id: string;
-  date: string;
-  client: string;
+  id: number;
+  clientName: string;
   phone: string;
-  city: string;
-  product: string;
-  qty: number;
-  unit: string;
+  email: string;
+  address: string;
+  comment: string;
   total: number;
-  status: 'new' | 'confirmed' | 'delivered' | 'cancelled';
+  status: OrderStatus;
+  createdAt: string;
+  items: { name: string; size: string; price: number; quantity: number }[];
 }
 
 interface ContactRequest {
@@ -26,23 +29,14 @@ interface ContactRequest {
   is_called: boolean;
 }
 
-const initialOrders: Order[] = [
-  { id: 'ЭД-001', date: '2026-05-20', client: 'Сергей Воронин', phone: '+7 (901) 234-56-78', city: 'Москва', product: 'Брус сосновый 150×150', qty: 5, unit: 'м³', total: 72500, status: 'delivered' },
-  { id: 'ЭД-002', date: '2026-05-21', client: 'Елена Краснова', phone: '+7 (911) 345-67-89', city: 'Санкт-Петербург', product: 'Террасная доска лиственница', qty: 20, unit: 'м²', total: 360000, status: 'confirmed' },
-  { id: 'ЭД-003', date: '2026-05-21', client: 'Антон Беляков', phone: '+7 (921) 456-78-90', city: 'Нижний Новгород', product: 'Доска обрезная 25×150', qty: 30, unit: 'м³', total: 255000, status: 'new' },
-  { id: 'ЭД-004', date: '2026-05-22', client: 'Ирина Соколова', phone: '+7 (931) 567-89-01', city: 'Москва', product: 'Вагонка сосновая', qty: 15, unit: 'м²', total: 102000, status: 'new' },
-  { id: 'ЭД-005', date: '2026-05-22', client: 'Николай Фёдоров', phone: '+7 (941) 678-90-12', city: 'Санкт-Петербург', product: 'Брус сосновый 100×100', qty: 10, unit: 'м³', total: 120000, status: 'confirmed' },
-  { id: 'ЭД-006', date: '2026-05-22', client: 'Анастасия Миронова', phone: '+7 (951) 789-01-23', city: 'Нижний Новгород', product: 'Блок-хаус сосна', qty: 25, unit: 'м²', total: 230000, status: 'new' },
-];
-
-const statusLabel: Record<Order['status'], string> = {
+const statusLabel: Record<OrderStatus, string> = {
   new: 'Новый',
   confirmed: 'Подтверждён',
   delivered: 'Доставлен',
   cancelled: 'Отменён',
 };
 
-const statusColor: Record<Order['status'], string> = {
+const statusColor: Record<OrderStatus, string> = {
   new: 'bg-blue-100 text-blue-700',
   confirmed: 'bg-amber-100 text-amber-700',
   delivered: 'bg-green-100 text-green-700',
@@ -53,20 +47,68 @@ export default function Manager() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'orders' | 'requests'>('orders');
 
-  // Orders tab
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [filter, setFilter] = useState<Order['status'] | 'all'>('all');
+  // ── Orders ──────────────────────────────────────────────
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [filter, setFilter] = useState<OrderStatus | 'all'>('all');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [newIds, setNewIds] = useState<Set<number>>(new Set());
+  const prevIdsRef = useRef<Set<number>>(new Set());
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const loadOrders = async (silent = false) => {
+    if (!silent) setOrdersLoading(true);
+    try {
+      const res = await fetch(ORDERS_API);
+      const data = await res.json();
+      const fetched: Order[] = data.orders || [];
+
+      // Подсвечиваем новые заказы
+      const fetchedIds = new Set(fetched.map(o => o.id));
+      const appeared = fetched.filter(o => !prevIdsRef.current.has(o.id) && prevIdsRef.current.size > 0);
+      if (appeared.length > 0) {
+        setNewIds(prev => {
+          const next = new Set(prev);
+          appeared.forEach(o => next.add(o.id));
+          return next;
+        });
+        setTimeout(() => {
+          setNewIds(prev => {
+            const next = new Set(prev);
+            appeared.forEach(o => next.delete(o.id));
+            return next;
+          });
+        }, 4000);
+      }
+      prevIdsRef.current = fetchedIds;
+      setOrders(fetched);
+    } finally {
+      if (!silent) setOrdersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+    pollingRef.current = setInterval(() => loadOrders(true), 15000);
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
+  }, []);
+
+  const updateStatus = async (id: number, status: OrderStatus) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    await fetch(ORDERS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update_status', id, status }),
+    });
+  };
+
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
   const totalSum = filtered.reduce((s, o) => s + o.total, 0);
 
-  const updateStatus = (id: string, status: Order['status']) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
-  };
-
   const downloadCSV = () => {
-    const header = 'ID,Дата,Клиент,Телефон,Город,Товар,Количество,Ед,Сумма,Статус\n';
+    const header = 'ID,Дата,Клиент,Телефон,Email,Адрес,Сумма,Статус\n';
     const rows = filtered.map(o =>
-      `${o.id},${o.date},"${o.client}",${o.phone},"${o.city}","${o.product}",${o.qty},${o.unit},${o.total},${statusLabel[o.status]}`
+      `${o.id},${formatDate(o.createdAt)},"${o.clientName}",${o.phone},"${o.email || ''}","${o.address || ''}",${o.total},${statusLabel[o.status]}`
     ).join('\n');
     const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -77,7 +119,7 @@ export default function Manager() {
     URL.revokeObjectURL(url);
   };
 
-  // Requests tab
+  // ── Requests ─────────────────────────────────────────────
   const [requests, setRequests] = useState<ContactRequest[]>([]);
   const [reqLoading, setReqLoading] = useState(false);
 
@@ -112,6 +154,7 @@ export default function Manager() {
   };
 
   const uncalledCount = requests.filter(r => !r.is_called).length;
+  const newOrdersCount = orders.filter(o => o.status === 'new').length;
 
   return (
     <div className="min-h-screen bg-eco-50">
@@ -127,13 +170,19 @@ export default function Manager() {
             <span className="font-display text-lg font-bold">ЭкоДрев</span>
             <span className="text-eco-300 text-sm">/ Менеджер</span>
           </div>
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-eco-300 hover:text-white transition-colors text-sm"
-          >
-            <Icon name="LogOut" size={16} />
-            Выйти
-          </button>
+          <div className="flex items-center gap-4">
+            <span className="text-eco-400 text-xs flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block" />
+              обновление каждые 15 сек
+            </span>
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-eco-300 hover:text-white transition-colors text-sm"
+            >
+              <Icon name="LogOut" size={16} />
+              Выйти
+            </button>
+          </div>
         </div>
       </div>
 
@@ -143,22 +192,23 @@ export default function Manager() {
           <button
             onClick={() => setTab('orders')}
             className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              tab === 'orders'
-                ? 'border-eco-700 text-eco-800'
-                : 'border-transparent text-eco-500 hover:text-eco-700'
+              tab === 'orders' ? 'border-eco-700 text-eco-800' : 'border-transparent text-eco-500 hover:text-eco-700'
             }`}
           >
             <span className="flex items-center gap-2">
               <Icon name="Package" size={16} />
               Заказы
+              {newOrdersCount > 0 && (
+                <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {newOrdersCount}
+                </span>
+              )}
             </span>
           </button>
           <button
             onClick={() => setTab('requests')}
             className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              tab === 'requests'
-                ? 'border-eco-700 text-eco-800'
-                : 'border-transparent text-eco-500 hover:text-eco-700'
+              tab === 'requests' ? 'border-eco-700 text-eco-800' : 'border-transparent text-eco-500 hover:text-eco-700'
             }`}
           >
             <span className="flex items-center gap-2">
@@ -173,21 +223,30 @@ export default function Manager() {
           </button>
         </div>
 
-        {/* ORDERS TAB */}
+        {/* ── ORDERS TAB ── */}
         {tab === 'orders' && (
           <>
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="font-display text-3xl font-bold text-eco-800">Заказы</h1>
-                <p className="text-eco-500 mt-1">Учёт и управление заказами клиентов</p>
+                <p className="text-eco-500 mt-1">Заказы с сайта в реальном времени</p>
               </div>
-              <button
-                onClick={downloadCSV}
-                className="flex items-center gap-2 bg-eco-700 text-white px-5 py-2.5 rounded-xl hover:bg-eco-800 transition-colors text-sm font-medium"
-              >
-                <Icon name="Download" size={16} />
-                Выгрузить CSV
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => loadOrders()}
+                  className="flex items-center gap-2 bg-white border border-eco-200 text-eco-700 px-4 py-2.5 rounded-xl hover:bg-eco-50 transition-colors text-sm font-medium"
+                >
+                  <Icon name="RefreshCw" size={15} />
+                  Обновить
+                </button>
+                <button
+                  onClick={downloadCSV}
+                  className="flex items-center gap-2 bg-eco-700 text-white px-4 py-2.5 rounded-xl hover:bg-eco-800 transition-colors text-sm font-medium"
+                >
+                  <Icon name="Download" size={15} />
+                  CSV
+                </button>
+              </div>
             </div>
 
             {/* Stats */}
@@ -212,9 +271,7 @@ export default function Manager() {
                   key={s}
                   onClick={() => setFilter(s)}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                    filter === s
-                      ? 'bg-eco-700 text-white'
-                      : 'bg-white border border-eco-200 text-eco-600 hover:bg-eco-50'
+                    filter === s ? 'bg-eco-700 text-white' : 'bg-white border border-eco-200 text-eco-600 hover:bg-eco-50'
                   }`}
                 >
                   {s === 'all' ? 'Все' : statusLabel[s]}
@@ -222,74 +279,130 @@ export default function Manager() {
               ))}
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-2xl border border-eco-100 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-eco-50 border-b border-eco-100">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-eco-600 font-semibold">№</th>
-                      <th className="text-left px-4 py-3 text-eco-600 font-semibold">Дата</th>
-                      <th className="text-left px-4 py-3 text-eco-600 font-semibold">Клиент</th>
-                      <th className="text-left px-4 py-3 text-eco-600 font-semibold">Город</th>
-                      <th className="text-left px-4 py-3 text-eco-600 font-semibold">Товар</th>
-                      <th className="text-right px-4 py-3 text-eco-600 font-semibold">Кол-во</th>
-                      <th className="text-right px-4 py-3 text-eco-600 font-semibold">Сумма</th>
-                      <th className="text-center px-4 py-3 text-eco-600 font-semibold">Статус</th>
-                      <th className="text-center px-4 py-3 text-eco-600 font-semibold">Действие</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map(order => (
-                      <tr key={order.id} className="border-b border-eco-50 hover:bg-eco-50 transition-colors">
-                        <td className="px-4 py-3 font-mono text-eco-500 text-xs">{order.id}</td>
-                        <td className="px-4 py-3 text-eco-600">{order.date}</td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-eco-800">{order.client}</div>
-                          <div className="text-eco-400 text-xs">{order.phone}</div>
-                        </td>
-                        <td className="px-4 py-3 text-eco-600">{order.city}</td>
-                        <td className="px-4 py-3 text-eco-700">{order.product}</td>
-                        <td className="px-4 py-3 text-right text-eco-600">{order.qty} {order.unit}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-eco-800">{order.total.toLocaleString('ru-RU')} ₽</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`inline-block px-2 py-1 rounded-lg text-xs font-medium ${statusColor[order.status]}`}>
-                            {statusLabel[order.status]}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
+            {ordersLoading ? (
+              <div className="flex items-center justify-center py-20 text-eco-400 gap-3">
+                <Icon name="Loader2" size={24} className="animate-spin" />
+                Загрузка заказов...
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-eco-100 shadow-sm p-16 text-center text-eco-400">
+                <div className="text-5xl mb-4">📦</div>
+                <p className="font-medium text-eco-600">Заказов пока нет</p>
+                <p className="text-sm mt-1">Как только клиент оформит заказ на сайте — он появится здесь автоматически</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filtered.map(order => (
+                  <div
+                    key={order.id}
+                    className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all duration-500 ${
+                      newIds.has(order.id) ? 'border-blue-400 shadow-blue-100 shadow-md' : 'border-eco-100'
+                    }`}
+                  >
+                    {/* Row */}
+                    <div
+                      className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-eco-50 transition-colors"
+                      onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}
+                    >
+                      {newIds.has(order.id) && (
+                        <span className="shrink-0 bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                          НОВЫЙ
+                        </span>
+                      )}
+                      <div className="font-mono text-eco-400 text-xs shrink-0">#{order.id}</div>
+                      <div className="text-eco-400 text-xs shrink-0 hidden sm:block">{formatDate(order.createdAt)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-eco-800 truncate">{order.clientName}</div>
+                        <div className="text-eco-500 text-xs">{order.phone}</div>
+                      </div>
+                      <div className="font-semibold text-eco-800 shrink-0 hidden sm:block">
+                        {order.total.toLocaleString('ru-RU')} ₽
+                      </div>
+                      <span className={`shrink-0 inline-block px-2 py-1 rounded-lg text-xs font-medium ${statusColor[order.status]}`}>
+                        {statusLabel[order.status]}
+                      </span>
+                      <Icon name={expandedId === order.id ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-eco-400 shrink-0" />
+                    </div>
+
+                    {/* Expanded */}
+                    {expandedId === order.id && (
+                      <div className="border-t border-eco-100 px-5 py-4 bg-eco-50 space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-eco-500 text-xs mb-1">Телефон</div>
+                            <a href={`tel:${order.phone}`} className="text-eco-800 font-medium hover:text-eco-900">{order.phone}</a>
+                          </div>
+                          {order.email && (
+                            <div>
+                              <div className="text-eco-500 text-xs mb-1">Email</div>
+                              <span className="text-eco-800">{order.email}</span>
+                            </div>
+                          )}
+                          {order.address && (
+                            <div>
+                              <div className="text-eco-500 text-xs mb-1">Адрес доставки</div>
+                              <span className="text-eco-800">{order.address}</span>
+                            </div>
+                          )}
+                          {order.comment && (
+                            <div>
+                              <div className="text-eco-500 text-xs mb-1">Комментарий</div>
+                              <span className="text-eco-700">{order.comment}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Items */}
+                        <div>
+                          <div className="text-eco-500 text-xs font-semibold uppercase tracking-wide mb-2">Состав заказа</div>
+                          <div className="space-y-1.5">
+                            {order.items.map((item, i) => (
+                              <div key={i} className="flex justify-between items-center text-sm bg-white rounded-lg px-3 py-2 border border-eco-100">
+                                <div>
+                                  <span className="font-medium text-eco-800">{item.name}</span>
+                                  {item.size && <span className="text-eco-500 text-xs ml-2">{item.size}</span>}
+                                  <span className="text-eco-500 text-xs ml-2">× {item.quantity} шт</span>
+                                </div>
+                                <span className="font-semibold text-eco-700">{(item.price * item.quantity).toLocaleString('ru-RU')} ₽</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex justify-between font-bold text-eco-800 pt-2 px-3">
+                            <span>Итого:</span>
+                            <span>{order.total.toLocaleString('ru-RU')} ₽</span>
+                          </div>
+                        </div>
+
+                        {/* Status change */}
+                        <div className="flex items-center gap-3 pt-1">
+                          <span className="text-eco-600 text-sm font-medium">Статус:</span>
                           <select
                             value={order.status}
-                            onChange={e => updateStatus(order.id, e.target.value as Order['status'])}
-                            className="border border-eco-200 rounded-lg px-2 py-1 text-xs text-eco-700 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-white"
+                            onChange={e => updateStatus(order.id, e.target.value as OrderStatus)}
+                            className="border border-eco-200 rounded-lg px-3 py-1.5 text-sm text-eco-700 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-white"
                           >
                             <option value="new">Новый</option>
                             <option value="confirmed">Подтверждён</option>
                             <option value="delivered">Доставлен</option>
                             <option value="cancelled">Отменён</option>
                           </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="bg-eco-50 border-t border-eco-200">
-                    <tr>
-                      <td colSpan={6} className="px-4 py-3 text-right text-eco-600 font-semibold text-sm">
-                        Итого по фильтру:
-                      </td>
-                      <td className="px-4 py-3 text-right font-bold text-eco-800">
-                        {totalSum.toLocaleString('ru-RU')} ₽
-                      </td>
-                      <td colSpan={2} />
-                    </tr>
-                  </tfoot>
-                </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Total */}
+                <div className="bg-white rounded-2xl border border-eco-200 px-5 py-3 flex justify-between font-semibold text-eco-800">
+                  <span>Итого по фильтру ({filtered.length} заказов):</span>
+                  <span className="font-display text-lg">{totalSum.toLocaleString('ru-RU')} ₽</span>
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
 
-        {/* REQUESTS TAB */}
+        {/* ── REQUESTS TAB ── */}
         {tab === 'requests' && (
           <>
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -307,7 +420,6 @@ export default function Manager() {
               </button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-4 mb-6 max-w-sm">
               <div className="rounded-2xl p-4 bg-red-100 text-red-700">
                 <div className="text-2xl font-bold font-display">{requests.filter(r => !r.is_called).length}</div>
@@ -345,31 +457,20 @@ export default function Manager() {
                     </thead>
                     <tbody>
                       {requests.map(req => (
-                        <tr
-                          key={req.id}
-                          className={`border-b border-eco-50 hover:bg-eco-50 transition-colors ${req.is_called ? 'opacity-50' : ''}`}
-                        >
+                        <tr key={req.id} className={`border-b border-eco-50 hover:bg-eco-50 transition-colors ${req.is_called ? 'opacity-50' : ''}`}>
                           <td className="px-4 py-3 text-eco-500 text-xs whitespace-nowrap">{formatDate(req.created_at)}</td>
                           <td className="px-4 py-3 font-medium text-eco-800">{req.name}</td>
                           <td className="px-4 py-3">
-                            <a href={`tel:${req.phone}`} className="text-eco-700 hover:text-eco-900 font-medium">
-                              {req.phone}
-                            </a>
+                            <a href={`tel:${req.phone}`} className="text-eco-700 hover:text-eco-900 font-medium">{req.phone}</a>
                           </td>
                           <td className="px-4 py-3 text-eco-600 max-w-xs">
-                            {req.message ? (
-                              <span className="line-clamp-2">{req.message}</span>
-                            ) : (
-                              <span className="text-eco-300 italic">Без сообщения</span>
-                            )}
+                            {req.message ? <span className="line-clamp-2">{req.message}</span> : <span className="text-eco-300 italic">Без сообщения</span>}
                           </td>
                           <td className="px-4 py-3 text-center">
                             <button
                               onClick={() => toggleCalled(req)}
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                                req.is_called
-                                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                  : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                req.is_called ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'
                               }`}
                             >
                               <Icon name={req.is_called ? 'CheckCircle' : 'Phone'} size={13} />
