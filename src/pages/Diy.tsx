@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import SectionFrame from '@/components/SectionFrame';
 
 const projects = [
   {
@@ -105,7 +106,8 @@ export default function Diy() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
         {/* Hero */}
-        <div className="text-center mb-16">
+        <SectionFrame>
+        <div className="text-center mb-16 py-8">
           <div className="inline-flex items-center gap-2 bg-amber-100 border border-amber-200 rounded-full px-4 py-2 text-amber-800 text-sm font-medium mb-4">
             🪵 Проекты из дерева
           </div>
@@ -116,12 +118,13 @@ export default function Diy() {
             Популярные проекты из дерева с точным расчётом материалов — количество, сечение и полезные советы мастера.
           </p>
         </div>
+        </SectionFrame>
 
         {/* Projects grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
           {projects.map(project => (
+            <SectionFrame key={project.id}>
             <div
-              key={project.id}
               className="bg-white rounded-3xl border border-amber-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
               {/* Card header */}
@@ -159,10 +162,12 @@ export default function Diy() {
                 </div>
               </div>
             </div>
+            </SectionFrame>
           ))}
         </div>
 
         {/* CTA */}
+        <SectionFrame>
         <div className="mt-16 text-center bg-white rounded-3xl border border-eco-100 shadow-sm px-8 py-10">
           <h2 className="font-display text-2xl font-bold text-eco-800 mb-3">
             Нашли подходящий проект?
@@ -177,6 +182,7 @@ export default function Diy() {
             Перейти в каталог
           </button>
         </div>
+        </SectionFrame>
       </div>
     </div>
   );

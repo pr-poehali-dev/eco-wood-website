@@ -17,7 +17,7 @@ interface OrderModalProps {
 }
 
 export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderModalProps) {
-  const [form, setForm] = useState({ name: '', phone: '', address: '', comment: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', comment: '' });
   const [agreed, setAgreed] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -29,7 +29,7 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
   const handleClose = () => {
     setStep('form');
-    setForm({ name: '', phone: '', address: '', comment: '' });
+    setForm({ name: '', phone: '', email: '', address: '', comment: '' });
     setAgreed(false);
     onClose();
     if (step === 'success') onSuccess();
@@ -96,6 +96,20 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
                 placeholder="+7 (___) ___-__-__"
                 value={form.phone}
                 onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                className="w-full border border-eco-200 rounded-xl px-4 py-3 text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50 placeholder-eco-300 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="text-eco-700 text-sm font-medium block mb-2">
+                E-mail
+                <span className="ml-1 text-eco-400 font-normal text-xs">(для счёта на оплату)</span>
+              </label>
+              <input
+                type="email"
+                placeholder="example@mail.ru"
+                value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                 className="w-full border border-eco-200 rounded-xl px-4 py-3 text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50 placeholder-eco-300 text-sm"
               />
             </div>
