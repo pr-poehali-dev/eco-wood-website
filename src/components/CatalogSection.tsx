@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import Reveal from '@/components/Reveal';
 
 const PRODUCTS_API = 'https://functions.poehali.dev/ba171918-0d7b-4e3f-aa6e-6ef0d857607e';
 
@@ -112,7 +113,7 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
   return (
     <section id="catalog" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-14">
+        <Reveal className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-eco-100 rounded-full px-4 py-2 text-eco-700 text-sm font-medium mb-4">
             🪵 Наша продукция
           </div>
@@ -120,10 +121,10 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
           <p className="text-eco-600 text-lg max-w-2xl mx-auto">
             Выберите нужный вид и размер пиломатериала. Указаны цены за 1 штуку.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => {
+          {products.map((product, idx) => {
             const sizes = productSizes[product.id] || [];
             const sizeIdx = getSelectedSize(product.id);
             const currentSize = sizes[sizeIdx];
@@ -131,8 +132,8 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
             const isAdded = addedIds.has(product.id);
 
             return (
+              <Reveal key={product.id} variant="scale" delay={idx * 80}>
               <div
-                key={product.id}
                 className={`card-eco flex flex-col overflow-hidden group relative transition-all duration-300 ${
                   !product.inStock ? 'grayscale opacity-60' : ''
                 }`}
@@ -237,6 +238,7 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
                   </button>
                 </div>
               </div>
+              </Reveal>
             );
           })}
         </div>
