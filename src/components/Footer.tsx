@@ -20,7 +20,11 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-eco-500 rounded-xl flex items-center justify-center text-lg">🌲</div>
+              <img
+                src="https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/959b4979-43a8-4629-b1a0-51a51b81c558.png"
+                alt="ЭкоДрев"
+                className="w-10 h-10 object-contain"
+              />
               <span className="font-display text-2xl font-bold">ЭкоДрев</span>
             </div>
             <p className="text-eco-300 text-sm leading-relaxed max-w-xs">
@@ -64,11 +68,6 @@ export default function Footer({ onNavigate }: FooterProps) {
           <div className="text-eco-500 text-sm">
             © 2026 ЭкоДрев. Все права защищены.
           </div>
-          <img
-            src="https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/5ac07b30-fd34-42d8-9dca-751a40b66bf3.png"
-            alt="MRSU"
-            className="h-20 opacity-70"
-          />
           <div className="flex gap-6 text-eco-500 text-xs">
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Политика конфиденциальности</span>
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Условия использования</span>

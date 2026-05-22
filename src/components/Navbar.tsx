@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
 interface NavbarProps {
@@ -20,6 +21,7 @@ const navItems = [
 
 export default function Navbar({ activeSection, cartCount, onNavigate, onCartOpen }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleNav = (id: string) => {
     onNavigate(id);
@@ -34,9 +36,11 @@ export default function Navbar({ activeSection, cartCount, onNavigate, onCartOpe
           onClick={() => handleNav('home')}
           className="flex items-center gap-2 group"
         >
-          <div className="w-9 h-9 bg-eco-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-            <span className="text-white text-lg">🌲</span>
-          </div>
+          <img
+            src="https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/959b4979-43a8-4629-b1a0-51a51b81c558.png"
+            alt="ЭкоДрев"
+            className="w-10 h-10 object-contain group-hover:scale-105 transition-transform"
+          />
           <span className="font-display text-2xl font-bold text-eco-800">ЭкоДрев</span>
         </button>
 
@@ -55,9 +59,17 @@ export default function Navbar({ activeSection, cartCount, onNavigate, onCartOpe
               </button>
             </li>
           ))}
+          <li>
+            <button
+              onClick={() => navigate('/diy')}
+              className="nav-link text-sm text-amber-700 font-semibold hover:text-amber-900"
+            >
+              🪵 Своими Руками
+            </button>
+          </li>
         </ul>
 
-        {/* Cart + mobile menu */}
+        {/* Cart + profile + mobile menu */}
         <div className="flex items-center gap-3">
           <button
             onClick={onCartOpen}
@@ -70,6 +82,14 @@ export default function Navbar({ activeSection, cartCount, onNavigate, onCartOpe
                 {cartCount}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => navigate('/login')}
+            className="w-9 h-9 rounded-full bg-eco-100 hover:bg-eco-200 border border-eco-200 flex items-center justify-center transition-all duration-200 text-eco-700 hover:text-eco-900"
+            title="Войти"
+          >
+            <Icon name="User" size={18} />
           </button>
 
           <button
@@ -97,6 +117,12 @@ export default function Navbar({ activeSection, cartCount, onNavigate, onCartOpe
               {item.label}
             </button>
           ))}
+          <button
+            onClick={() => { navigate('/diy'); setMenuOpen(false); }}
+            className="text-left px-4 py-3 rounded-xl text-amber-700 font-semibold hover:bg-amber-50 transition-colors"
+          >
+            🪵 Своими Руками
+          </button>
         </div>
       )}
     </nav>

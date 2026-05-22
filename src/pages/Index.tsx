@@ -10,6 +10,7 @@ import ContactsSection from '@/components/ContactsSection';
 import CartDrawer from '@/components/CartDrawer';
 import OrderModal from '@/components/OrderModal';
 import Footer from '@/components/Footer';
+import SectionFrame from '@/components/SectionFrame';
 
 interface CartItem {
   id: string;
@@ -76,12 +77,12 @@ const Index = () => {
 
       <main>
         <HeroSection onNavigate={navigateTo} />
-        <CatalogSection onAddToCart={addToCart} />
-        <CalculatorSection />
-        <AboutSection />
-        <ReviewsSection />
-        <TipsSection />
-        <ContactsSection />
+        <SectionFrame><CatalogSection onAddToCart={addToCart} /></SectionFrame>
+        <SectionFrame><CalculatorSection /></SectionFrame>
+        <SectionFrame><AboutSection /></SectionFrame>
+        <SectionFrame><ReviewsSection /></SectionFrame>
+        <SectionFrame><TipsSection /></SectionFrame>
+        <SectionFrame><ContactsSection /></SectionFrame>
       </main>
 
       <Footer onNavigate={navigateTo} />

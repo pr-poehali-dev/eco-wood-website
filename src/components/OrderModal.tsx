@@ -18,6 +18,7 @@ interface OrderModalProps {
 
 export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderModalProps) {
   const [form, setForm] = useState({ name: '', phone: '', address: '', comment: '' });
+  const [agreed, setAgreed] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -29,6 +30,7 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
   const handleClose = () => {
     setStep('form');
     setForm({ name: '', phone: '', address: '', comment: '' });
+    setAgreed(false);
     onClose();
     if (step === 'success') onSuccess();
   };
@@ -120,7 +122,31 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
               />
             </div>
 
-            <button type="submit" className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-eco-600 border-eco-600' : 'border-eco-300 group-hover:border-eco-500'}`}>
+                {agreed && <Icon name="Check" size={12} className="text-white" />}
+              </div>
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={agreed}
+                onChange={e => setAgreed(e.target.checked)}
+                required
+              />
+              <span className="text-eco-600 text-sm leading-relaxed">
+                Я ознакомлен(а) и согласен(а) с{' '}
+                <span className="text-eco-700 underline cursor-pointer hover:text-eco-900">
+                  пользовательским соглашением
+                </span>{' '}
+                и политикой обработки персональных данных
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={!agreed}
+              className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Icon name="Package" size={18} />
               Подтвердить заказ
             </button>
