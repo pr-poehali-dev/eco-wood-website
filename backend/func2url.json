@@ -1,4 +1,6 @@
 {
+  "products-api": "https://functions.poehali.dev/ba171918-0d7b-4e3f-aa6e-6ef0d857607e",
+  "sections-api": "https://functions.poehali.dev/e0eb1640-c731-4a50-9e29-bdd97ce016b0",
   "get-contact-requests": "https://functions.poehali.dev/a53097dc-0bcc-4e6f-be7f-763852152b16",
   "contact-request": "https://functions.poehali.dev/824523cc-e2f0-4a99-a417-a05c2f88fb11"
 }

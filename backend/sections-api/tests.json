@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Получить список секций",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"sections": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

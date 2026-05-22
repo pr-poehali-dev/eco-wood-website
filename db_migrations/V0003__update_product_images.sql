@@ -1,0 +1,6 @@
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/4cd35b88-f82e-428a-b074-8ea3bb84eae1.jpg' WHERE id = 'pine-beam';
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/f60a6a60-a263-4fe4-a410-0859b997aff9.jpg' WHERE id = 'pine-board';
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/e7dae93f-a726-4220-8e59-e9ffc38ddc1d.jpg' WHERE id = 'larch-deck';
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/915769db-158b-4206-8346-2c37ae3a3862.jpg' WHERE id = 'spruce-beam';
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/dcf8430c-b220-4e59-99a8-1ab19cd5c08f.jpg' WHERE id = 'lining';
+UPDATE t_p59771403_eco_wood_website.products SET image_url = 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/files/82f90a08-2027-441b-9456-88497aa596bf.jpg' WHERE id = 'sleeper';
