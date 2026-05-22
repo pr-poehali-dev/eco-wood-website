@@ -49,7 +49,7 @@ export default function AboutSection() {
               {[
                 { value: '10+', label: 'лет работы' },
                 { value: '2000+', label: 'клиентов' },
-                { value: '200+', label: 'видов продукции' },
+                { value: '20+', label: 'видов продукции' },
                 { value: '50000', label: 'м³ в год' },
               ].map(stat => (
                 <div key={stat.label} className="bg-eco-50 rounded-xl p-4 border border-eco-100 text-center">
