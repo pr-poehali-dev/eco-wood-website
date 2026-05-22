@@ -114,66 +114,19 @@
   }
 }
 
-/* Scroll-reveal animations */
-@keyframes fade-up {
+/* Wood curl spin animation */
+@keyframes wood-spin {
   from {
-    opacity: 0;
-    transform: translateY(32px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes scale-up {
-  from {
-    opacity: 0;
-    transform: scale(0.93);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+    transform: rotate(360deg);
   }
 }
 
-.reveal {
-  opacity: 0;
-}
-.reveal.visible {
-  animation: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.reveal-fade.visible {
-  animation: fade-in 0.6s ease forwards;
-}
-.reveal-scale.visible {
-  animation: scale-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.reveal-delay-1 {
-  animation-delay: 0.08s !important;
-}
-.reveal-delay-2 {
-  animation-delay: 0.16s !important;
-}
-.reveal-delay-3 {
-  animation-delay: 0.24s !important;
-}
-.reveal-delay-4 {
-  animation-delay: 0.32s !important;
-}
-.reveal-delay-5 {
-  animation-delay: 0.4s !important;
-}
-.reveal-delay-6 {
-  animation-delay: 0.48s !important;
+.wood-curl-spin {
+  animation: wood-spin 20s linear infinite;
+  transform-origin: center center;
 }
 
 ::-webkit-scrollbar {

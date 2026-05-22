@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Reveal from '@/components/Reveal';
 
 const tips = [
   {
@@ -204,9 +203,9 @@ export default function TipsSection() {
 
         {/* Tips grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((tip, idx) => (
-            <Reveal key={tip.id} delay={idx * 80}>
+          {filtered.map(tip => (
             <div
+              key={tip.id}
               className={`border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-md ${tip.color} ${
                 openTip === tip.id ? 'shadow-md' : ''
               }`}
@@ -241,7 +240,6 @@ export default function TipsSection() {
                 </div>
               )}
             </div>
-            </Reveal>
           ))}
         </div>
       </div>

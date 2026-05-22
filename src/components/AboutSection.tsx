@@ -1,5 +1,3 @@
-import Reveal from '@/components/Reveal';
-
 export default function AboutSection() {
   const values = [
     { icon: '🌿', title: 'Экологичность', desc: 'Работаем только с сертифицированными лесными хозяйствами. Для каждого спиленного дерева — три новых.' },
@@ -29,7 +27,7 @@ export default function AboutSection() {
         </div>
 
         {/* Story + Image */}
-        <Reveal className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
           <div className="space-y-6">
             <h3 className="font-display text-3xl font-semibold text-eco-800">Наша история</h3>
             <div className="space-y-4 text-eco-700 leading-relaxed">
@@ -70,20 +68,18 @@ export default function AboutSection() {
             />
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-eco-900/10 to-transparent" />
           </div>
-        </Reveal>
+        </div>
 
         {/* Values */}
         <div className="mb-20">
           <h3 className="font-display text-3xl font-semibold text-eco-800 text-center mb-10">Наши ценности</h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((v, idx) => (
-              <Reveal key={v.title} variant="scale" delay={idx * 100}>
-              <div className="card-eco p-6 text-center group hover:-translate-y-1 transition-transform duration-300">
+            {values.map(v => (
+              <div key={v.title} className="card-eco p-6 text-center group hover:-translate-y-1 transition-transform duration-300">
                 <div className="text-4xl mb-4">{v.icon}</div>
                 <h4 className="font-display text-xl font-semibold text-eco-800 mb-3">{v.title}</h4>
                 <p className="text-eco-600 text-sm leading-relaxed">{v.desc}</p>
               </div>
-              </Reveal>
             ))}
           </div>
         </div>
@@ -92,9 +88,8 @@ export default function AboutSection() {
         <div>
           <h3 className="font-display text-3xl font-semibold text-eco-800 text-center mb-10">Наша команда</h3>
           <div className="grid sm:grid-cols-3 gap-6">
-            {team.map((member, idx) => (
-              <Reveal key={member.name} delay={idx * 120}>
-              <div className="card-eco p-6 text-center">
+            {team.map(member => (
+              <div key={member.name} className="card-eco p-6 text-center">
                 <div className="w-20 h-20 bg-eco-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">
                   👤
                 </div>
@@ -102,7 +97,6 @@ export default function AboutSection() {
                 <div className="text-eco-600 text-sm font-medium mt-1">{member.role}</div>
                 <div className="text-eco-500 text-xs mt-2">{member.exp}</div>
               </div>
-              </Reveal>
             ))}
           </div>
         </div>

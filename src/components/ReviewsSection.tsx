@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
-import Reveal from '@/components/Reveal';
 
 const reviews = [
   {
@@ -100,9 +99,8 @@ export default function ReviewsSection() {
 
         {/* Reviews grid */}
         <div className="grid md:grid-cols-2 gap-6">
-          {reviews.slice(0, visibleCount).map((review, idx) => (
-            <Reveal key={review.id} delay={idx * 100}>
-            <div className="card-eco p-6 flex flex-col gap-4">
+          {reviews.slice(0, visibleCount).map(review => (
+            <div key={review.id} className="card-eco p-6 flex flex-col gap-4">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -136,7 +134,6 @@ export default function ReviewsSection() {
                 {review.product}
               </div>
             </div>
-            </Reveal>
           ))}
         </div>
 
