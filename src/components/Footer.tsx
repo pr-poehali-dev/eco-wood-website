@@ -55,7 +55,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <div className="space-y-3 text-eco-300 text-sm">
               <div>📞 +7 (800) 123-45-67</div>
               <div>📧 info@ekodrev.ru</div>
-              <div>📍 Арзамас, ул. Лесная, 12</div>
+              <div>📍 Нижегородская Обл., г. Арзамас, д. Березовский Сельсовет</div>
               <div className="pt-2">
                 <div className="text-eco-400 text-xs">Пн–Пт: 8:00 – 18:00</div>
                 <div className="text-eco-400 text-xs">Сб: 9:00 – 15:00</div>

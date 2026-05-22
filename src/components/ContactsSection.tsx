@@ -13,7 +13,7 @@ export default function ContactsSection() {
   const contacts = [
     { icon: '📞', label: 'Телефон', value: '+7 (800) 123-45-67', sub: 'Бесплатно по России' },
     { icon: '📧', label: 'Email', value: 'info@ekodrev.ru', sub: 'Отвечаем за 2 часа' },
-    { icon: '📍', label: 'Адрес', value: 'Арзамас, ул. Лесная, 12', sub: 'Пн–Пт 8:00–18:00' },
+    { icon: '📍', label: 'Адрес', value: 'Нижегородская Обл., г. Арзамас, д. Березовский Сельсовет', sub: 'Пн–Пт 8:00–18:00' },
     { icon: '💬', label: 'WhatsApp', value: '+7 (900) 123-45-67', sub: 'Быстрая связь' },
   ];
 
@@ -73,7 +73,7 @@ export default function ContactsSection() {
             >
               <div className="text-center text-eco-500">
                 <div className="text-4xl mb-2">🗺️</div>
-                <div className="text-sm font-medium">Арзамас, ул. Лесная, 12</div>
+                <div className="text-sm font-medium">Нижегородская Обл., г. Арзамас, д. Березовский Сельсовет</div>
                 <div className="text-xs mt-1 text-eco-400">Открыть на Яндекс.Картах →</div>
               </div>
             </a>
