@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Сохранить заявку",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "Тест Тестов", "phone": "+7 (999) 999-99-99", "message": "Тестовое сообщение"},
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

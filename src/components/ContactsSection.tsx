@@ -1,13 +1,31 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
+const CONTACT_REQUEST_URL = 'https://functions.poehali.dev/824523cc-e2f0-4a99-a417-a05c2f88fb11';
+
 export default function ContactsSection() {
   const [form, setForm] = useState({ name: '', phone: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(CONTACT_REQUEST_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('Ошибка сервера');
+      setSent(true);
+    } catch {
+      setError('Не удалось отправить заявку. Попробуйте ещё раз или позвоните нам.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contacts = [
@@ -122,9 +140,21 @@ export default function ContactsSection() {
                     />
                   </div>
 
-                  <button type="submit" className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
-                    <Icon name="Send" size={18} />
-                    Отправить заявку
+                  {error && (
+                    <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{error}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2 disabled:opacity-60"
+                  >
+                    {loading ? (
+                      <Icon name="Loader2" size={18} className="animate-spin" />
+                    ) : (
+                      <Icon name="Send" size={18} />
+                    )}
+                    {loading ? 'Отправляем...' : 'Отправить заявку'}
                   </button>
 
                   <p className="text-eco-400 text-xs text-center">
