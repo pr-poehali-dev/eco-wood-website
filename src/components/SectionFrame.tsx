@@ -5,41 +5,68 @@ interface SectionFrameProps {
   className?: string;
 }
 
-const ShavingCorner = ({ flip }: { flip?: boolean }) => (
-  <div
-    className={`absolute ${flip ? 'right-0 scale-x-[-1]' : 'left-0'} top-0 w-24 h-24 pointer-events-none overflow-hidden`}
+/* Спиральная стружка — SVG как на фото: завитой рулон со штриховкой */
+const WoodCurl = ({ className = '' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 160 110"
+    className={`pointer-events-none select-none ${className}`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
   >
-    <svg viewBox="0 0 96 96" className="w-full h-full" fill="none">
-      <path d="M4,4 Q24,-2 28,20 Q32,38 12,42" stroke="#c2440a" strokeWidth="2.5" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0s'}} />
-      <path d="M2,18 Q18,10 26,30 Q34,48 16,52" stroke="#a83800" strokeWidth="2" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.4s'}} />
-      <path d="M14,2 Q30,8 32,26 Q34,46 18,54" stroke="#e05010" strokeWidth="2" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.8s'}} />
-      <path d="M28,4 Q46,2 50,22 Q54,42 36,48" stroke="#b84020" strokeWidth="1.5" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.2s'}} />
-      <path d="M4,32 Q10,50 30,52 Q48,54 50,72" stroke="#d04818" strokeWidth="2" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.6s'}} />
-    </svg>
-  </div>
-);
-
-const ShavingCornerBottom = ({ flip }: { flip?: boolean }) => (
-  <div
-    className={`absolute ${flip ? 'right-0 scale-x-[-1]' : 'left-0'} bottom-0 w-24 h-24 pointer-events-none overflow-hidden`}
-    aria-hidden="true"
-  >
-    <svg viewBox="0 0 96 96" className="w-full h-full rotate-180" fill="none">
-      <path d="M4,4 Q24,-2 28,20 Q32,38 12,42" stroke="#c2440a" strokeWidth="2.5" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.1s'}} />
-      <path d="M2,18 Q18,10 26,30 Q34,48 16,52" stroke="#a83800" strokeWidth="2" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.5s'}} />
-      <path d="M14,2 Q30,8 32,26 Q34,46 18,54" stroke="#e05010" strokeWidth="2" strokeLinecap="round" fill="none" className="shaving-line" style={{animationDelay:'0.9s'}} />
-    </svg>
-  </div>
+    {/* Внешний завиток — большой спираль */}
+    <path
+      d="M140,80 C150,55 145,28 120,18 C95,8 68,20 58,42 C48,64 60,90 82,95 C104,100 124,84 128,64 C132,44 118,28 100,26 C82,24 68,36 66,52 C64,68 76,80 90,80 C104,80 112,70 110,58 C108,46 98,40 88,44"
+      stroke="#d4a96a"
+      strokeWidth="6"
+      strokeLinecap="round"
+      fill="none"
+      opacity="0.9"
+    />
+    {/* Внутренняя линия для объёма */}
+    <path
+      d="M138,82 C148,57 143,30 118,20 C93,10 66,22 56,44 C46,66 58,92 80,97 C102,102 122,86 126,66 C130,46 116,30 98,28 C80,26 66,38 64,54 C62,70 74,82 88,82 C102,82 110,72 108,60 C106,48 96,42 86,46"
+      stroke="#c49058"
+      strokeWidth="3"
+      strokeLinecap="round"
+      fill="none"
+      opacity="0.5"
+    />
+    {/* Штриховка — рёбра стружки */}
+    <path d="M132,46 C128,44 124,43 120,43" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M128,36 C122,33 116,32 110,33" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M118,26 C110,24 102,24 95,26" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M100,20 C90,19 80,20 72,23" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M76,22 C68,26 62,32 58,40" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M54,52 C52,60 54,70 60,78" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M68,90 C76,96 86,98 96,97" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M110,92 C118,88 124,82 126,74" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    <path d="M130,62 C132,54 130,46 126,40" stroke="#b87c48" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+    {/* Конец стружки — отогнутый край */}
+    <path
+      d="M86,46 C80,48 76,54 78,60 C80,66 86,68 90,65"
+      stroke="#d4a96a"
+      strokeWidth="5"
+      strokeLinecap="round"
+      fill="none"
+      opacity="0.85"
+    />
+    {/* Тень под стружкой */}
+    <ellipse cx="95" cy="102" rx="42" ry="5" fill="#a0784a" opacity="0.12"/>
+  </svg>
 );
 
 export default function SectionFrame({ children, className = '' }: SectionFrameProps) {
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      <ShavingCorner />
-      <ShavingCorner flip />
-      <ShavingCornerBottom />
-      <ShavingCornerBottom flip />
+      {/* Левый верхний угол */}
+      <WoodCurl className="absolute -left-4 -top-2 w-36 h-28 opacity-70 rotate-[-20deg]" />
+      {/* Правый верхний угол */}
+      <WoodCurl className="absolute -right-4 -top-2 w-36 h-28 opacity-70 rotate-[200deg] scale-x-[-1]" />
+      {/* Левый нижний */}
+      <WoodCurl className="absolute -left-4 -bottom-2 w-28 h-22 opacity-50 rotate-[160deg]" />
+      {/* Правый нижний */}
+      <WoodCurl className="absolute -right-4 -bottom-2 w-28 h-22 opacity-50 rotate-[-160deg] scale-x-[-1]" />
       {children}
     </div>
   );
