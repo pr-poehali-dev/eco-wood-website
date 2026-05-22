@@ -64,14 +64,19 @@ export default function ContactsSection() {
               </div>
             </div>
 
-            {/* Map placeholder */}
-            <div className="bg-eco-100 rounded-2xl h-48 flex items-center justify-center border border-eco-200">
+            {/* Map */}
+            <a
+              href="https://yandex.ru/maps/?pt=43.892200,55.359400&z=16&l=map"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-eco-100 rounded-2xl h-48 flex items-center justify-center border border-eco-200 cursor-pointer hover:border-eco-400 hover:bg-eco-200 transition-colors block"
+            >
               <div className="text-center text-eco-500">
                 <div className="text-4xl mb-2">🗺️</div>
                 <div className="text-sm font-medium">Арзамас, ул. Лесная, 12</div>
-                <div className="text-xs mt-1">Карта будет здесь</div>
+                <div className="text-xs mt-1 text-eco-400">Открыть на Яндекс.Картах →</div>
               </div>
-            </div>
+            </a>
           </div>
 
           {/* Form */}
