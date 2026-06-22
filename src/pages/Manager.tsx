@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
+const EMPLOYEES_KEY = 'ekodrev_employees';
+interface Employee { id: string; name: string; role: string; login: string; password: string; }
+function loadEmployees(): Employee[] {
+  try { return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]'); } catch { return []; }
+}
+function saveEmployees(list: Employee[]) { localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(list)); }
+
 const ORDERS_API = 'https://functions.poehali.dev/97eb501c-3e4e-4500-9867-e0cd38ce1d6a';
 const GET_REQUESTS_URL = 'https://functions.poehali.dev/a53097dc-0bcc-4e6f-be7f-763852152b16';
 
@@ -45,7 +52,7 @@ const statusColor: Record<OrderStatus, string> = {
 
 export default function Manager() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'orders' | 'requests'>('orders');
+  const [tab, setTab] = useState<'orders' | 'requests' | 'stats' | 'employees'>('orders');
 
   // ── Orders ──────────────────────────────────────────────
   const [orders, setOrders] = useState<Order[]>([]);
@@ -56,6 +63,24 @@ export default function Manager() {
   const prevIdsRef = useRef<Set<number>>(new Set());
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // ── Employees ──
+  const [employees, setEmployees] = useState<Employee[]>(loadEmployees);
+  const [empForm, setEmpForm] = useState({ name: '', role: '', login: '', password: '' });
+  const [showEmpForm, setShowEmpForm] = useState(false);
+  const [showPassId, setShowPassId] = useState<string | null>(null);
+
+  const addEmployee = () => {
+    if (!empForm.name || !empForm.login || !empForm.password) return;
+    const list = [...employees, { ...empForm, id: Date.now().toString() }];
+    setEmployees(list); saveEmployees(list);
+    setEmpForm({ name: '', role: '', login: '', password: '' }); setShowEmpForm(false);
+  };
+  const removeEmployee = (id: string) => {
+    const list = employees.filter(e => e.id !== id);
+    setEmployees(list); saveEmployees(list);
+  };
+
+  // ── Orders ──
   const loadOrders = async (silent = false) => {
     if (!silent) setOrdersLoading(true);
     try {
@@ -63,10 +88,16 @@ export default function Manager() {
       const data = await res.json();
       const fetched: Order[] = data.orders || [];
 
-      // Подсвечиваем новые заказы
       const fetchedIds = new Set(fetched.map(o => o.id));
       const appeared = fetched.filter(o => !prevIdsRef.current.has(o.id) && prevIdsRef.current.size > 0);
       if (appeared.length > 0) {
+        // Browser notification
+        if (Notification.permission === 'granted') {
+          appeared.forEach(o => new Notification('🆕 Новый заказ — ЭкоДрев', {
+            body: `${o.clientName} · ${o.total.toLocaleString('ru-RU')} ₽`,
+            icon: 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/959b4979-43a8-4629-b1a0-51a51b81c558.png',
+          }));
+        }
         setNewIds(prev => {
           const next = new Set(prev);
           appeared.forEach(o => next.add(o.id));
@@ -88,6 +119,7 @@ export default function Manager() {
   };
 
   useEffect(() => {
+    if (Notification.permission === 'default') Notification.requestPermission();
     loadOrders();
     pollingRef.current = setInterval(() => loadOrders(true), 15000);
     return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
@@ -220,6 +252,22 @@ export default function Manager() {
                 </span>
               )}
             </span>
+          </button>
+          <button
+            onClick={() => setTab('stats')}
+            className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              tab === 'stats' ? 'border-eco-700 text-eco-800' : 'border-transparent text-eco-500 hover:text-eco-700'
+            }`}
+          >
+            <span className="flex items-center gap-2"><Icon name="BarChart2" size={16} />Статистика</span>
+          </button>
+          <button
+            onClick={() => setTab('employees')}
+            className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              tab === 'employees' ? 'border-eco-700 text-eco-800' : 'border-transparent text-eco-500 hover:text-eco-700'
+            }`}
+          >
+            <span className="flex items-center gap-2"><Icon name="Users" size={16} />Сотрудники</span>
           </button>
         </div>
 
@@ -482,6 +530,159 @@ export default function Manager() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── STATS TAB ── */}
+        {tab === 'stats' && (
+          <>
+            <div className="mb-8">
+              <h1 className="font-display text-3xl font-bold text-eco-800">Статистика</h1>
+              <p className="text-eco-500 mt-1">Сводные данные по заказам</p>
+            </div>
+
+            {orders.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-eco-100 shadow-sm p-16 text-center">
+                <div className="text-5xl mb-4">📊</div>
+                <p className="font-medium text-eco-600 text-lg">Данных пока нет</p>
+                <p className="text-eco-400 text-sm mt-2">Статистика появится после первых заказов</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  {[
+                    { label: 'Всего заказов', value: orders.length, color: 'bg-eco-100 text-eco-700', icon: '📦' },
+                    { label: 'Выручка (руб.)', value: orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0).toLocaleString('ru-RU') + ' ₽', color: 'bg-green-100 text-green-700', icon: '💰' },
+                    { label: 'Новых', value: orders.filter(o => o.status === 'new').length, color: 'bg-blue-100 text-blue-700', icon: '🆕' },
+                    { label: 'Доставлено', value: orders.filter(o => o.status === 'delivered').length, color: 'bg-amber-100 text-amber-700', icon: '✅' },
+                  ].map(s => (
+                    <div key={s.label} className={`rounded-2xl p-5 ${s.color}`}>
+                      <div className="text-2xl mb-1">{s.icon}</div>
+                      <div className="font-display text-2xl font-bold">{s.value}</div>
+                      <div className="text-xs mt-1 opacity-75">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-white rounded-2xl border border-eco-100 shadow-sm p-6">
+                  <h3 className="font-semibold text-eco-800 mb-4">Распределение по статусам</h3>
+                  <div className="space-y-3">
+                    {(['new','confirmed','delivered','cancelled'] as OrderStatus[]).map(s => {
+                      const count = orders.filter(o => o.status === s).length;
+                      const pct = orders.length ? Math.round(count / orders.length * 100) : 0;
+                      return (
+                        <div key={s}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-eco-700">{statusLabel[s]}</span>
+                            <span className="font-medium text-eco-800">{count} ({pct}%)</span>
+                          </div>
+                          <div className="h-2 bg-eco-100 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full transition-all ${s==='new'?'bg-blue-400':s==='confirmed'?'bg-amber-400':s==='delivered'?'bg-green-500':'bg-red-400'}`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {/* ── EMPLOYEES TAB ── */}
+        {tab === 'employees' && (
+          <>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h1 className="font-display text-3xl font-bold text-eco-800">Сотрудники</h1>
+                <p className="text-eco-500 mt-1">Логины и пароли сотрудников системы</p>
+              </div>
+              <button
+                onClick={() => setShowEmpForm(v => !v)}
+                className="flex items-center gap-2 bg-eco-700 text-white px-5 py-2.5 rounded-xl hover:bg-eco-800 transition-colors text-sm font-medium"
+              >
+                <Icon name="UserPlus" size={16} />
+                Добавить сотрудника
+              </button>
+            </div>
+
+            {showEmpForm && (
+              <div className="bg-white rounded-2xl border border-eco-200 shadow-sm p-6 mb-6 space-y-4">
+                <h3 className="font-semibold text-eco-800">Новый сотрудник</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    { key: 'name', label: 'Имя', placeholder: 'Иван Иванов' },
+                    { key: 'role', label: 'Должность', placeholder: 'Менеджер' },
+                    { key: 'login', label: 'Логин', placeholder: 'ivan.ivanov' },
+                    { key: 'password', label: 'Пароль', placeholder: '••••••••' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="text-eco-700 text-sm font-medium block mb-1">{f.label}</label>
+                      <input
+                        type={f.key === 'password' ? 'text' : 'text'}
+                        placeholder={f.placeholder}
+                        value={empForm[f.key as keyof typeof empForm]}
+                        onChange={e => setEmpForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        className="w-full border border-eco-200 rounded-xl px-3 py-2.5 text-sm text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={addEmployee} className="btn-primary px-6 py-2 text-sm">Добавить</button>
+                  <button onClick={() => setShowEmpForm(false)} className="btn-secondary px-6 py-2 text-sm">Отмена</button>
+                </div>
+              </div>
+            )}
+
+            {employees.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-eco-100 shadow-sm p-16 text-center">
+                <div className="text-5xl mb-4">👥</div>
+                <p className="font-medium text-eco-600">Сотрудников пока нет</p>
+                <p className="text-eco-400 text-sm mt-2">Нажмите «Добавить сотрудника» чтобы создать первую запись</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-eco-100 shadow-sm overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-eco-50 border-b border-eco-100">
+                    <tr>
+                      <th className="text-left px-5 py-3 text-eco-600 font-semibold">Имя</th>
+                      <th className="text-left px-5 py-3 text-eco-600 font-semibold">Должность</th>
+                      <th className="text-left px-5 py-3 text-eco-600 font-semibold">Логин</th>
+                      <th className="text-left px-5 py-3 text-eco-600 font-semibold">Пароль</th>
+                      <th className="text-center px-5 py-3 text-eco-600 font-semibold">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employees.map(emp => (
+                      <tr key={emp.id} className="border-b border-eco-50 hover:bg-eco-50 transition-colors">
+                        <td className="px-5 py-3 font-medium text-eco-800">{emp.name}</td>
+                        <td className="px-5 py-3 text-eco-600">{emp.role || '—'}</td>
+                        <td className="px-5 py-3 font-mono text-eco-700">{emp.login}</td>
+                        <td className="px-5 py-3">
+                          <button
+                            onClick={() => setShowPassId(showPassId === emp.id ? null : emp.id)}
+                            className="flex items-center gap-1.5 text-xs text-eco-500 hover:text-eco-800 transition-colors"
+                          >
+                            <Icon name={showPassId === emp.id ? 'EyeOff' : 'Eye'} size={14} />
+                            {showPassId === emp.id ? emp.password : '••••••••'}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <button
+                            onClick={() => removeEmployee(emp.id)}
+                            className="text-red-400 hover:text-red-600 transition-colors"
+                            title="Удалить"
+                          >
+                            <Icon name="Trash2" size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </>

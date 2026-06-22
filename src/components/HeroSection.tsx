@@ -18,7 +18,7 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
       <div className="absolute top-20 right-10 w-80 h-80 bg-eco-200 rounded-full opacity-30 blur-3xl" />
       <div className="absolute bottom-20 left-10 w-60 h-60 bg-wood-200 rounded-full opacity-25 blur-3xl" />
 
-      <div className="relative max-w-7xl mx-auto px-4 md:px-8 w-full pt-16">
+      <div className="relative max-w-7xl mx-auto px-4 md:px-8 w-full pt-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left content */}
           <div className="space-y-8">
@@ -80,28 +80,51 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-eco-900/30 to-transparent" />
             </div>
 
-            {/* Floating card */}
-            <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border border-eco-100 animate-fade-in animate-delay-500">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-eco-100 rounded-xl flex items-center justify-center text-xl">
-                  🚚
-                </div>
-                <div>
-                  <div className="font-semibold text-eco-800 text-sm">Быстрая доставка</div>
-                  <div className="text-eco-600 text-xs">По всей России</div>
-                </div>
-              </div>
-            </div>
-
+            {/* ГОСТ качество badge */}
             <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-4 border border-eco-100 animate-fade-in animate-delay-400">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-wood-100 rounded-xl flex items-center justify-center text-xl">
-                  ✅
-                </div>
+                <div className="w-10 h-10 bg-wood-100 rounded-xl flex items-center justify-center text-xl">✅</div>
                 <div>
                   <div className="font-semibold text-wood-800 text-sm">ГОСТ качество</div>
                   <div className="text-wood-600 text-xs">Сертифицировано</div>
                 </div>
+              </div>
+            </div>
+
+            {/* Truck animation */}
+            <div className="absolute -bottom-6 left-0 right-0 h-16 overflow-hidden">
+              <div className="truck-drive flex items-center gap-0" style={{ width: 'max-content' }}>
+                {/* Flag banner */}
+                <div className="relative mr-1" style={{ top: '-4px' }}>
+                  <div className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-md whitespace-nowrap"
+                    style={{ clipPath: 'polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%)' }}>
+                    Быстрая доставка
+                  </div>
+                  <div className="w-px h-4 bg-gray-500 mx-auto" />
+                </div>
+                {/* Red truck SVG */}
+                <svg viewBox="0 0 120 60" width="100" height="50" xmlns="http://www.w3.org/2000/svg">
+                  {/* Cabin */}
+                  <rect x="70" y="15" width="40" height="28" rx="4" fill="#cc2222"/>
+                  {/* Windshield */}
+                  <rect x="98" y="18" width="10" height="12" rx="2" fill="#b3d9f7" opacity="0.85"/>
+                  {/* Body/trailer */}
+                  <rect x="10" y="18" width="62" height="25" rx="3" fill="#dd3333"/>
+                  {/* Undercarriage */}
+                  <rect x="10" y="40" width="100" height="5" rx="2" fill="#aa1111"/>
+                  {/* Wheels */}
+                  <circle cx="28" cy="48" r="8" fill="#222"/>
+                  <circle cx="28" cy="48" r="4" fill="#555"/>
+                  <circle cx="90" cy="48" r="8" fill="#222"/>
+                  <circle cx="90" cy="48" r="4" fill="#555"/>
+                  <circle cx="108" cy="48" r="6" fill="#222"/>
+                  <circle cx="108" cy="48" r="3" fill="#555"/>
+                  {/* Headlight */}
+                  <rect x="108" y="26" width="4" height="5" rx="1" fill="#ffe066"/>
+                  {/* Exhaust puff */}
+                  <circle cx="6" cy="22" r="3" fill="white" opacity="0.5"/>
+                  <circle cx="2" cy="18" r="2" fill="white" opacity="0.3"/>
+                </svg>
               </div>
             </div>
           </div>

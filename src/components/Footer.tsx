@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom';
+
 interface FooterProps {
   onNavigate: (section: string) => void;
 }
 
 export default function Footer({ onNavigate }: FooterProps) {
+  const navigate = useNavigate();
   const links = [
     { id: 'home', label: 'Главная' },
     { id: 'catalog', label: 'Каталог' },
@@ -30,6 +33,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <p className="text-eco-300 text-sm leading-relaxed max-w-xs">
               Производим и продаём качественный пиломатериал уже 10 лет. Прямо от производителя — без посредников.
             </p>
+            <p className="text-eco-500 text-xs mt-3">ИНН 522777846257</p>
           </div>
 
           {/* Navigation */}
@@ -53,8 +57,8 @@ export default function Footer({ onNavigate }: FooterProps) {
           <div>
             <h4 className="font-semibold text-eco-100 mb-4 text-sm uppercase tracking-wide">Контакты</h4>
             <div className="space-y-3 text-eco-300 text-sm">
-              <div>📞 +7 (800) 123-45-67</div>
-              <div>📧 info@ekodrev.ru</div>
+              <div>📞 +7 910 885 14 45</div>
+              <div>📧 klik015@yandex.ru</div>
               <div>📍 Нижегородская Обл., г. Арзамас, д. Березовский Сельсовет</div>
               <div className="pt-2">
                 <div className="text-eco-400 text-xs">Пн–Пт: 8:00 – 18:00</div>
@@ -69,7 +73,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             © 2026 ЭкоДрев. Все права защищены.
           </div>
           <div className="flex gap-6 text-eco-500 text-xs">
-            <span className="cursor-pointer hover:text-eco-300 transition-colors">Политика конфиденциальности</span>
+            <span className="cursor-pointer hover:text-eco-300 transition-colors" onClick={() => navigate('/privacy')}>Политика конфиденциальности</span>
             <span className="cursor-pointer hover:text-eco-300 transition-colors">Условия использования</span>
           </div>
         </div>

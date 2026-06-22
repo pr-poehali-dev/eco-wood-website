@@ -60,21 +60,13 @@ export default function SectionFrame({ children, className = '' }: SectionFrameP
   return (
     <div className={`relative overflow-hidden ${className}`}>
       {/* Левый верхний угол */}
-      <div className="absolute -left-4 -top-2 w-36 h-28 wood-curl-spin opacity-70">
-        <WoodCurl className="w-full h-full rotate-[-20deg]" />
-      </div>
+      <WoodCurl className="absolute -left-4 -top-2 w-36 h-28 opacity-70 rotate-[-20deg]" />
       {/* Правый верхний угол */}
-      <div className="absolute -right-4 -top-2 w-36 h-28 wood-curl-spin opacity-70" style={{ animationDelay: '-5s' }}>
-        <WoodCurl className="w-full h-full rotate-[200deg] scale-x-[-1]" />
-      </div>
+      <WoodCurl className="absolute -right-4 -top-2 w-36 h-28 opacity-70 rotate-[200deg] scale-x-[-1]" />
       {/* Левый нижний */}
-      <div className="absolute -left-4 -bottom-2 w-28 h-22 wood-curl-spin opacity-50" style={{ animationDelay: '-10s' }}>
-        <WoodCurl className="w-full h-full rotate-[160deg]" />
-      </div>
+      <WoodCurl className="absolute -left-4 -bottom-2 w-28 h-22 opacity-50 rotate-[160deg]" />
       {/* Правый нижний */}
-      <div className="absolute -right-4 -bottom-2 w-28 h-22 wood-curl-spin opacity-50" style={{ animationDelay: '-15s' }}>
-        <WoodCurl className="w-full h-full rotate-[-160deg] scale-x-[-1]" />
-      </div>
+      <WoodCurl className="absolute -right-4 -bottom-2 w-28 h-22 opacity-50 rotate-[-160deg] scale-x-[-1]" />
       {children}
     </div>
   );

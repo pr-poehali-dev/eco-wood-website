@@ -114,6 +114,19 @@
   }
 }
 
+/* Truck driving animation */
+@keyframes truck-drive {
+  0% {
+    transform: translateX(110%);
+  }
+  100% {
+    transform: translateX(-130%);
+  }
+}
+.truck-drive {
+  animation: truck-drive 7s linear infinite;
+}
+
 /* Wood curl spin animation */
 @keyframes wood-spin {
   from {

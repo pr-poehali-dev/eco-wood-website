@@ -78,7 +78,7 @@ const Index = () => {
       <main>
         <HeroSection onNavigate={navigateTo} />
         <SectionFrame><CatalogSection onAddToCart={addToCart} /></SectionFrame>
-        <SectionFrame><CalculatorSection /></SectionFrame>
+        <SectionFrame><CalculatorSection onAddToCart={addToCart} /></SectionFrame>
         <SectionFrame><AboutSection /></SectionFrame>
         <SectionFrame><ReviewsSection /></SectionFrame>
         <SectionFrame><TipsSection /></SectionFrame>

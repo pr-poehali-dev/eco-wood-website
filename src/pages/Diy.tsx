@@ -2,6 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
+function addToSharedCart(item: { id: string; name: string; size: string; price: number; quantity: number }) {
+  const stored = localStorage.getItem('ekodrev_cart');
+  const cart = stored ? JSON.parse(stored) : [];
+  const idx = cart.findIndex((i: typeof item) => i.id === item.id);
+  if (idx >= 0) cart[idx].quantity += item.quantity;
+  else cart.push(item);
+  localStorage.setItem('ekodrev_cart', JSON.stringify(cart));
+}
+
 const projects = [
   {
     id: 1,
@@ -209,9 +218,16 @@ export default function Diy() {
   const [values, setValues] = useState<Record<string, number>>({
     width: 3, length: 3, height: 2.5,
   });
+  const [reserve, setReserve] = useState<5 | 10 | 15 | 0>(0);
+  const [addedCalc, setAddedCalc] = useState(false);
 
   const config = buildConfigs[buildType];
-  const result = config.calc(values);
+  const baseResult = config.calc(values);
+  const reserveMultiplier = 1 + reserve / 100;
+  const result = {
+    items: baseResult.items.map(i => ({ ...i, price: Math.round(i.price * reserveMultiplier) })),
+    total: Math.round(baseResult.total * reserveMultiplier),
+  };
 
   const handleTypeChange = (type: BuildType) => {
     setBuildType(type);
@@ -336,6 +352,26 @@ export default function Diy() {
                 ))}
               </div>
 
+              {/* Непредвиденные расходы */}
+              <div>
+                <div className="text-eco-700 text-sm font-semibold mb-2">Запас на непредвиденные расходы:</div>
+                <div className="flex gap-2">
+                  {([0, 5, 10, 15] as const).map(v => (
+                    <button
+                      key={v}
+                      onClick={() => setReserve(v)}
+                      className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                        reserve === v
+                          ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                          : 'bg-amber-50 text-amber-700 border-amber-200 hover:border-amber-400'
+                      }`}
+                    >
+                      {v === 0 ? 'Без запаса' : `+${v}%`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="bg-eco-700 text-white rounded-2xl p-5">
                 <div className="flex items-center justify-between">
                   <div>
@@ -343,15 +379,32 @@ export default function Diy() {
                     <div className="font-display text-3xl font-bold mt-1">
                       {result.total.toLocaleString('ru-RU')} ₽
                     </div>
+                    {reserve > 0 && (
+                      <div className="text-eco-300 text-xs mt-1">включая запас +{reserve}%</div>
+                    )}
                   </div>
                   <div className="text-5xl opacity-30">{config.emoji}</div>
                 </div>
                 <button
-                  onClick={() => navigate('/#catalog')}
-                  className="mt-4 w-full bg-white text-eco-700 font-semibold py-2.5 rounded-xl text-sm hover:bg-eco-50 transition-colors flex items-center justify-center gap-2"
+                  onClick={() => {
+                    result.items.forEach((item, i) => {
+                      addToSharedCart({
+                        id: `diy-${buildType}-${i}`,
+                        name: item.name,
+                        size: item.qty,
+                        price: item.price,
+                        quantity: 1,
+                      });
+                    });
+                    setAddedCalc(true);
+                    setTimeout(() => setAddedCalc(false), 2000);
+                  }}
+                  className={`mt-4 w-full font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 ${
+                    addedCalc ? 'bg-green-400 text-white' : 'bg-white text-eco-700 hover:bg-eco-50'
+                  }`}
                 >
-                  <Icon name="ShoppingCart" size={16} />
-                  Перейти к заказу
+                  <Icon name={addedCalc ? 'Check' : 'ShoppingCart'} size={16} />
+                  {addedCalc ? 'Добавлено в корзину!' : 'Добавить в корзину'}
                 </button>
               </div>
             </div>

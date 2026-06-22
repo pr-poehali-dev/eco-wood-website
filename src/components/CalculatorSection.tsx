@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
+interface CartItem {
+  id: string;
+  name: string;
+  size: string;
+  price: number;
+  quantity: number;
+}
+
+interface CalculatorSectionProps {
+  onAddToCart?: (item: CartItem) => void;
+}
+
 const materials = [
   { id: 'pine', name: 'Сосна', pricePerCubic: 7500 },
   { id: 'spruce', name: 'Ель', pricePerCubic: 7200 },
@@ -15,8 +27,9 @@ const profiles = [
   { id: 'deck', name: 'Террасная доска', coeff: 1.1 },
 ];
 
-export default function CalculatorSection() {
+export default function CalculatorSection({ onAddToCart }: CalculatorSectionProps) {
   const [material, setMaterial] = useState(materials[0].id);
+  const [added, setAdded] = useState(false);
   const [profile, setProfile] = useState(profiles[0].id);
   const [width, setWidth] = useState(100);
   const [height, setHeight] = useState(100);
@@ -208,13 +221,21 @@ export default function CalculatorSection() {
               </div>
               <button
                 onClick={() => {
-                  const el = document.getElementById('catalog');
-                  el?.scrollIntoView({ behavior: 'smooth' });
+                  if (!onAddToCart) return;
+                  onAddToCart({
+                    id: `calc-${material}-${profile}-${width}x${height}x${length}`,
+                    name: `${selectedMaterial.name} · ${selectedProfile.name}`,
+                    size: `${width}×${height}×${length} мм`,
+                    price: Math.round(pricePerPiece),
+                    quantity,
+                  });
+                  setAdded(true);
+                  setTimeout(() => setAdded(false), 2000);
                 }}
-                className="btn-primary w-full py-3 text-sm"
+                className={`w-full py-3 text-sm flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 ${added ? 'bg-green-500 text-white' : 'btn-primary'}`}
               >
-                <Icon name="ShoppingCart" size={16} className="inline mr-2" />
-                Перейти в каталог
+                <Icon name={added ? 'Check' : 'ShoppingCart'} size={16} />
+                {added ? 'Добавлено в корзину!' : 'Добавить в корзину'}
               </button>
             </div>
           </div>
