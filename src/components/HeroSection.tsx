@@ -80,7 +80,17 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-eco-900/30 to-transparent" />
 
               {/* Truck animation — inside the image, left→right */}
-              <div className="truck-drive">
+              <div className="truck-drive" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                {/* Flag banner trailing BEHIND the truck (to the left) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginRight: '4px', paddingBottom: '10px' }}>
+                  {/* Rope from flag to trailer */}
+                  <div style={{ height: '2px', width: '30px', background: '#888', alignSelf: 'flex-end', marginBottom: '2px' }} />
+                  {/* Flag */}
+                  <div className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs whitespace-nowrap shadow-md"
+                    style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 100%, 10% 100%, 0 50%)' }}>
+                    Быстрая доставка
+                  </div>
+                </div>
                 {/* Truck SVG (faces right) */}
                 <svg viewBox="0 0 140 60" width="120" height="52" xmlns="http://www.w3.org/2000/svg">
                   {/* Trailer body */}
@@ -100,18 +110,10 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
                   <circle cx="116" cy="50" r="3" fill="#444"/>
                   {/* Headlight */}
                   <rect x="124" y="24" width="5" height="6" rx="1" fill="#ffe066"/>
-                  {/* Exhaust smoke from top-left */}
+                  {/* Exhaust smoke */}
                   <circle cx="14" cy="8" r="4" fill="white" opacity="0.4"/>
                   <circle cx="10" cy="4" r="2.5" fill="white" opacity="0.25"/>
                 </svg>
-                {/* Flag on pole — behind cab */}
-                <div style={{ position: 'absolute', left: '62px', bottom: '30px' }}>
-                  <div style={{ width: '1px', height: '28px', background: '#888', margin: '0 auto' }} />
-                  <div className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs whitespace-nowrap shadow-md"
-                    style={{ clipPath: 'polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%)', marginTop: '-28px', marginLeft: '1px' }}>
-                    Быстрая доставка
-                  </div>
-                </div>
               </div>
             </div>
 

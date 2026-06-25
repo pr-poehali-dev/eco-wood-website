@@ -7,9 +7,9 @@ export default function AboutSection() {
   ];
 
   const team = [
-    { name: 'Николай Машков', role: 'Основатель и директор', exp: '10 лет в лесной промышленности' },
-    { name: 'Ольга Машкова', role: 'Менеджер по продажам', exp: 'Ваш личный консультант' },
-    { name: 'Константин Соколов', role: 'Главный технолог', exp: 'Контроль качества продукции' },
+    { name: 'Николай Машков', role: 'Основатель и директор', exp: '10 лет в лесной промышленности', photo: 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/a614db18-61ac-4d90-b240-13bc8f07c464.jpg' },
+    { name: 'Ольга Машкова', role: 'Менеджер по продажам', exp: 'Ваш личный консультант', photo: 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/4a84c58f-a568-43c8-ba5e-5fc2e299a71b.jpg' },
+    { name: 'Константин Соколов', role: 'Главный технолог', exp: 'Контроль качества продукции', photo: 'https://cdn.poehali.dev/projects/9893030b-b0f1-44eb-bfc4-cfe8fdbd3ab8/bucket/776e2845-65cd-406e-b3f0-9019b68a5544.jpg' },
   ];
 
   return (
@@ -90,9 +90,11 @@ export default function AboutSection() {
           <div className="grid sm:grid-cols-3 gap-6">
             {team.map(member => (
               <div key={member.name} className="card-eco p-6 text-center">
-                <div className="w-20 h-20 bg-eco-100 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">
-                  👤
-                </div>
+                <img
+                  src={member.photo}
+                  alt={member.name}
+                  className="w-20 h-20 rounded-full object-cover mx-auto mb-4"
+                />
                 <h4 className="font-semibold text-eco-800 text-lg">{member.name}</h4>
                 <div className="text-eco-600 text-sm font-medium mt-1">{member.role}</div>
                 <div className="text-eco-500 text-xs mt-2">{member.exp}</div>

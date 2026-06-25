@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
-const ADMIN_LOGIN = 'mn-mashkova1603';
+const ADMIN_LOGIN = 'admin';
 const ADMIN_PASS = 'M16M0489Nm06MOh';
-const MANAGER_LOGIN = 'oh-mashkova';
+const MANAGER_LOGIN = 'manager';
 const MANAGER_PASS = '06OMh16Mm0489Nm';
 
 export default function Login() {

@@ -63,6 +63,44 @@ export default function Manager() {
   const prevIdsRef = useRef<Set<number>>(new Set());
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // ── Create Order ──
+  const [showCreateOrder, setShowCreateOrder] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const PAYMENT_OPTIONS = ['Безналичная (расчётный счёт)', 'Оплата картой', 'Наличный расчёт'];
+  const emptyOrderForm = { name: '', phone: '', email: '', address: '', comment: '', payment: '' };
+  const [orderForm, setOrderForm] = useState(emptyOrderForm);
+  const [orderItems, setOrderItems] = useState<{ name: string; size: string; price: number; quantity: number }[]>([]);
+  const [newItem, setNewItem] = useState({ name: '', size: '', price: '', quantity: '1' });
+
+  const addOrderItem = () => {
+    if (!newItem.name || !newItem.price) return;
+    setOrderItems(prev => [...prev, { name: newItem.name, size: newItem.size, price: Number(newItem.price), quantity: Number(newItem.quantity) || 1 }]);
+    setNewItem({ name: '', size: '', price: '', quantity: '1' });
+  };
+  const removeOrderItem = (idx: number) => setOrderItems(prev => prev.filter((_, i) => i !== idx));
+  const orderTotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
+
+  const submitCreateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (orderItems.length === 0) { setCreateError('Добавьте хотя бы одну позицию'); return; }
+    if (!orderForm.payment) { setCreateError('Выберите способ оплаты'); return; }
+    setCreateLoading(true); setCreateError('');
+    try {
+      const res = await fetch(ORDERS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create', name: orderForm.name, phone: orderForm.phone, email: orderForm.email, address: orderForm.address, comment: orderForm.comment, payment: orderForm.payment, total: orderTotal, items: orderItems }),
+      });
+      if (!res.ok) throw new Error();
+      setShowCreateOrder(false);
+      setOrderForm(emptyOrderForm);
+      setOrderItems([]);
+      loadOrders();
+    } catch { setCreateError('Ошибка при создании заказа'); }
+    finally { setCreateLoading(false); }
+  };
+
   // ── Employees ──
   const [employees, setEmployees] = useState<Employee[]>(loadEmployees);
   const [empForm, setEmpForm] = useState({ name: '', role: '', login: '', password: '' });
@@ -279,7 +317,14 @@ export default function Manager() {
                 <h1 className="font-display text-3xl font-bold text-eco-800">Заказы</h1>
                 <p className="text-eco-500 mt-1">Заказы с сайта в реальном времени</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setShowCreateOrder(v => !v)}
+                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-xl hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  <Icon name="PlusCircle" size={15} />
+                  Создать заказ
+                </button>
                 <button
                   onClick={() => loadOrders()}
                   className="flex items-center gap-2 bg-white border border-eco-200 text-eco-700 px-4 py-2.5 rounded-xl hover:bg-eco-50 transition-colors text-sm font-medium"
@@ -296,6 +341,109 @@ export default function Manager() {
                 </button>
               </div>
             </div>
+
+            {/* Create Order Form */}
+            {showCreateOrder && (
+              <form onSubmit={submitCreateOrder} className="bg-white rounded-2xl border border-green-200 shadow-sm p-6 mb-6 space-y-5">
+                <h3 className="font-display text-xl font-semibold text-eco-800 flex items-center gap-2">
+                  <Icon name="PlusCircle" size={20} className="text-green-600" />
+                  Новый заказ для клиента
+                </h3>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    { key: 'name', label: 'Имя клиента *', placeholder: 'Иван Иванов', required: true, type: 'text' },
+                    { key: 'phone', label: 'Телефон *', placeholder: '+7 (___) ___-__-__', required: true, type: 'tel' },
+                    { key: 'email', label: 'E-mail *', placeholder: 'example@mail.ru', required: true, type: 'email' },
+                    { key: 'address', label: 'Адрес доставки', placeholder: 'Город, улица, дом', required: false, type: 'text' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="text-eco-700 text-sm font-medium block mb-1">{f.label}</label>
+                      <input required={f.required} type={f.type} placeholder={f.placeholder}
+                        value={orderForm[f.key as keyof typeof orderForm]}
+                        onChange={e => setOrderForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        className="w-full border border-eco-200 rounded-xl px-3 py-2.5 text-sm text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Payment */}
+                <div>
+                  <label className="text-eco-700 text-sm font-medium block mb-2">Способ оплаты *</label>
+                  <div className="flex flex-col gap-2">
+                    {PAYMENT_OPTIONS.map(opt => (
+                      <label key={opt} className="flex items-center gap-3 cursor-pointer">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${orderForm.payment === opt ? 'border-eco-600 bg-eco-600' : 'border-eco-300'}`}>
+                          {orderForm.payment === opt && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                        <input type="radio" name="mgr-payment" value={opt} className="sr-only"
+                          checked={orderForm.payment === opt} onChange={() => setOrderForm(p => ({ ...p, payment: opt }))} />
+                        <span className="text-eco-700 text-sm">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Order items */}
+                <div>
+                  <label className="text-eco-700 text-sm font-medium block mb-2">Позиции заказа</label>
+                  {orderItems.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      {orderItems.map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-eco-50 rounded-xl px-3 py-2 text-sm">
+                          <span className="flex-1 text-eco-800">{item.name} {item.size && `· ${item.size}`}</span>
+                          <span className="text-eco-600 shrink-0">{item.quantity} шт × {item.price.toLocaleString('ru-RU')} ₽</span>
+                          <button type="button" onClick={() => removeOrderItem(i)} className="text-red-400 hover:text-red-600">
+                            <Icon name="X" size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="font-semibold text-eco-800 text-sm text-right px-3">
+                        Итого: {orderTotal.toLocaleString('ru-RU')} ₽
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <input placeholder="Название *" value={newItem.name} onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))}
+                      className="col-span-2 sm:col-span-1 border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
+                    <input placeholder="Размер (мм)" value={newItem.size} onChange={e => setNewItem(p => ({ ...p, size: e.target.value }))}
+                      className="border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
+                    <input placeholder="Цена ₽ *" type="number" min="1" value={newItem.price} onChange={e => setNewItem(p => ({ ...p, price: e.target.value }))}
+                      className="border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
+                    <div className="flex gap-2">
+                      <input placeholder="Кол-во" type="number" min="1" value={newItem.quantity} onChange={e => setNewItem(p => ({ ...p, quantity: e.target.value }))}
+                        className="w-20 border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
+                      <button type="button" onClick={addOrderItem}
+                        className="flex-1 bg-eco-100 hover:bg-eco-200 text-eco-700 rounded-xl px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1">
+                        <Icon name="Plus" size={14} /> Добавить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-eco-700 text-sm font-medium block mb-1">Комментарий</label>
+                  <textarea rows={2} placeholder="Пожелания клиента..."
+                    value={orderForm.comment} onChange={e => setOrderForm(p => ({ ...p, comment: e.target.value }))}
+                    className="w-full border border-eco-200 rounded-xl px-3 py-2.5 text-sm text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50 resize-none" />
+                </div>
+
+                {createError && <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{createError}</p>}
+
+                <div className="flex gap-3">
+                  <button type="submit" disabled={createLoading}
+                    className="flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-xl hover:bg-green-700 transition-colors text-sm font-semibold disabled:opacity-60">
+                    <Icon name={createLoading ? 'Loader2' : 'Check'} size={16} className={createLoading ? 'animate-spin' : ''} />
+                    {createLoading ? 'Сохраняем...' : 'Оформить заказ'}
+                  </button>
+                  <button type="button" onClick={() => { setShowCreateOrder(false); setCreateError(''); setOrderItems([]); setOrderForm(emptyOrderForm); }}
+                    className="px-6 py-2.5 rounded-xl border border-eco-200 text-eco-600 hover:bg-eco-50 transition-colors text-sm">
+                    Отмена
+                  </button>
+                </div>
+              </form>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">

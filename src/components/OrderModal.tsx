@@ -19,12 +19,18 @@ interface OrderModalProps {
 }
 
 export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderModalProps) {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', comment: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', comment: '', payment: '' });
   const [agreed, setAgreed] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const PAYMENT_OPTIONS = [
+    'Безналичная (расчётный счёт)',
+    'Оплата картой',
+    'Наличный расчёт',
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +47,7 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
           email: form.email,
           address: form.address,
           comment: form.comment,
+          payment: form.payment,
           total,
           items: items.map(i => ({ name: i.name, size: i.size, price: i.price, quantity: i.quantity })),
         }),
@@ -56,7 +63,7 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
   const handleClose = () => {
     setStep('form');
-    setForm({ name: '', phone: '', email: '', address: '', comment: '' });
+    setForm({ name: '', phone: '', email: '', address: '', comment: '', payment: '' });
     setAgreed(false);
     setError('');
     onClose();
@@ -125,10 +132,10 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
 
             <div>
               <label className="text-eco-700 text-sm font-medium block mb-2">
-                E-mail
-                <span className="ml-1 text-eco-400 font-normal text-xs">(для счёта на оплату)</span>
+                E-mail *
               </label>
               <input
+                required
                 type="email"
                 placeholder="example@mail.ru"
                 value={form.email}
@@ -146,6 +153,24 @@ export default function OrderModal({ isOpen, items, onClose, onSuccess }: OrderM
                 onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
                 className="w-full border border-eco-200 rounded-xl px-4 py-3 text-eco-800 focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50 placeholder-eco-300 text-sm"
               />
+            </div>
+
+            <div>
+              <label className="text-eco-700 text-sm font-medium block mb-2">Способ оплаты *</label>
+              <div className="flex flex-col gap-2">
+                {PAYMENT_OPTIONS.map(opt => (
+                  <label key={opt} className="flex items-center gap-3 cursor-pointer group">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${form.payment === opt ? 'border-eco-600 bg-eco-600' : 'border-eco-300 group-hover:border-eco-500'}`}>
+                      {form.payment === opt && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </div>
+                    <input type="radio" name="payment" value={opt} required className="sr-only"
+                      checked={form.payment === opt}
+                      onChange={() => setForm(p => ({ ...p, payment: opt }))}
+                    />
+                    <span className="text-eco-700 text-sm">{opt}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div>

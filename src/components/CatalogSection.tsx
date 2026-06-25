@@ -223,7 +223,7 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={!product.inStock}
-                    className={`w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
+                    className={`mt-auto w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 ${
                       product.inStock
                         ? isAdded
                           ? 'bg-green-500 text-white'
