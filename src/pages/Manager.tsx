@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import OrderProductPicker, { type OrderItem } from '@/components/OrderProductPicker';
 
 const EMPLOYEES_KEY = 'ekodrev_employees';
 interface Employee { id: string; name: string; role: string; login: string; password: string; }
@@ -70,15 +71,7 @@ export default function Manager() {
   const PAYMENT_OPTIONS = ['Безналичная (расчётный счёт)', 'Оплата картой', 'Наличный расчёт'];
   const emptyOrderForm = { name: '', phone: '', email: '', address: '', comment: '', payment: '' };
   const [orderForm, setOrderForm] = useState(emptyOrderForm);
-  const [orderItems, setOrderItems] = useState<{ name: string; size: string; price: number; quantity: number }[]>([]);
-  const [newItem, setNewItem] = useState({ name: '', size: '', price: '', quantity: '1' });
-
-  const addOrderItem = () => {
-    if (!newItem.name || !newItem.price) return;
-    setOrderItems(prev => [...prev, { name: newItem.name, size: newItem.size, price: Number(newItem.price), quantity: Number(newItem.quantity) || 1 }]);
-    setNewItem({ name: '', size: '', price: '', quantity: '1' });
-  };
-  const removeOrderItem = (idx: number) => setOrderItems(prev => prev.filter((_, i) => i !== idx));
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const orderTotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
 
   const submitCreateOrder = async (e: React.FormEvent) => {
@@ -386,41 +379,7 @@ export default function Manager() {
                 </div>
 
                 {/* Order items */}
-                <div>
-                  <label className="text-eco-700 text-sm font-medium block mb-2">Позиции заказа</label>
-                  {orderItems.length > 0 && (
-                    <div className="space-y-2 mb-3">
-                      {orderItems.map((item, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-eco-50 rounded-xl px-3 py-2 text-sm">
-                          <span className="flex-1 text-eco-800">{item.name} {item.size && `· ${item.size}`}</span>
-                          <span className="text-eco-600 shrink-0">{item.quantity} шт × {item.price.toLocaleString('ru-RU')} ₽</span>
-                          <button type="button" onClick={() => removeOrderItem(i)} className="text-red-400 hover:text-red-600">
-                            <Icon name="X" size={14} />
-                          </button>
-                        </div>
-                      ))}
-                      <div className="font-semibold text-eco-800 text-sm text-right px-3">
-                        Итого: {orderTotal.toLocaleString('ru-RU')} ₽
-                      </div>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <input placeholder="Название *" value={newItem.name} onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))}
-                      className="col-span-2 sm:col-span-1 border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
-                    <input placeholder="Размер (мм)" value={newItem.size} onChange={e => setNewItem(p => ({ ...p, size: e.target.value }))}
-                      className="border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
-                    <input placeholder="Цена ₽ *" type="number" min="1" value={newItem.price} onChange={e => setNewItem(p => ({ ...p, price: e.target.value }))}
-                      className="border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
-                    <div className="flex gap-2">
-                      <input placeholder="Кол-во" type="number" min="1" value={newItem.quantity} onChange={e => setNewItem(p => ({ ...p, quantity: e.target.value }))}
-                        className="w-20 border border-eco-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-eco-400 bg-eco-50" />
-                      <button type="button" onClick={addOrderItem}
-                        className="flex-1 bg-eco-100 hover:bg-eco-200 text-eco-700 rounded-xl px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1">
-                        <Icon name="Plus" size={14} /> Добавить
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <OrderProductPicker items={orderItems} onChange={setOrderItems} />
 
                 <div>
                   <label className="text-eco-700 text-sm font-medium block mb-1">Комментарий</label>
