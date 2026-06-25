@@ -406,6 +406,15 @@ export default function Diy() {
                   <Icon name={addedCalc ? 'Check' : 'ShoppingCart'} size={16} />
                   {addedCalc ? 'Добавлено в корзину!' : 'Добавить в корзину'}
                 </button>
+                {addedCalc && (
+                  <button
+                    onClick={() => navigate('/')}
+                    className="mt-2 w-full bg-eco-500 hover:bg-eco-400 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Icon name="ArrowLeft" size={16} />
+                    Перейти в корзину на главной
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -78,6 +78,41 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
                 className="w-full h-[500px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-eco-900/30 to-transparent" />
+
+              {/* Truck animation — inside the image, left→right */}
+              <div className="truck-drive">
+                {/* Truck SVG (faces right) */}
+                <svg viewBox="0 0 140 60" width="120" height="52" xmlns="http://www.w3.org/2000/svg">
+                  {/* Trailer body */}
+                  <rect x="8" y="12" width="80" height="32" rx="3" fill="#dd3333"/>
+                  {/* Cabin */}
+                  <rect x="88" y="16" width="38" height="28" rx="4" fill="#cc1111"/>
+                  {/* Windshield */}
+                  <rect x="118" y="19" width="6" height="14" rx="2" fill="#b3d9f7" opacity="0.9"/>
+                  {/* Undercarriage */}
+                  <rect x="8" y="41" width="118" height="5" rx="2" fill="#aa0000"/>
+                  {/* Wheels */}
+                  <circle cx="30" cy="50" r="8" fill="#1a1a1a"/>
+                  <circle cx="30" cy="50" r="4" fill="#444"/>
+                  <circle cx="95" cy="50" r="8" fill="#1a1a1a"/>
+                  <circle cx="95" cy="50" r="4" fill="#444"/>
+                  <circle cx="116" cy="50" r="6" fill="#1a1a1a"/>
+                  <circle cx="116" cy="50" r="3" fill="#444"/>
+                  {/* Headlight */}
+                  <rect x="124" y="24" width="5" height="6" rx="1" fill="#ffe066"/>
+                  {/* Exhaust smoke from top-left */}
+                  <circle cx="14" cy="8" r="4" fill="white" opacity="0.4"/>
+                  <circle cx="10" cy="4" r="2.5" fill="white" opacity="0.25"/>
+                </svg>
+                {/* Flag on pole — behind cab */}
+                <div style={{ position: 'absolute', left: '62px', bottom: '30px' }}>
+                  <div style={{ width: '1px', height: '28px', background: '#888', margin: '0 auto' }} />
+                  <div className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs whitespace-nowrap shadow-md"
+                    style={{ clipPath: 'polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%)', marginTop: '-28px', marginLeft: '1px' }}>
+                    Быстрая доставка
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* ГОСТ качество badge */}
@@ -88,43 +123,6 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
                   <div className="font-semibold text-wood-800 text-sm">ГОСТ качество</div>
                   <div className="text-wood-600 text-xs">Сертифицировано</div>
                 </div>
-              </div>
-            </div>
-
-            {/* Truck animation */}
-            <div className="absolute -bottom-6 left-0 right-0 h-16 overflow-hidden">
-              <div className="truck-drive flex items-center gap-0" style={{ width: 'max-content' }}>
-                {/* Flag banner */}
-                <div className="relative mr-1" style={{ top: '-4px' }}>
-                  <div className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-md whitespace-nowrap"
-                    style={{ clipPath: 'polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%)' }}>
-                    Быстрая доставка
-                  </div>
-                  <div className="w-px h-4 bg-gray-500 mx-auto" />
-                </div>
-                {/* Red truck SVG */}
-                <svg viewBox="0 0 120 60" width="100" height="50" xmlns="http://www.w3.org/2000/svg">
-                  {/* Cabin */}
-                  <rect x="70" y="15" width="40" height="28" rx="4" fill="#cc2222"/>
-                  {/* Windshield */}
-                  <rect x="98" y="18" width="10" height="12" rx="2" fill="#b3d9f7" opacity="0.85"/>
-                  {/* Body/trailer */}
-                  <rect x="10" y="18" width="62" height="25" rx="3" fill="#dd3333"/>
-                  {/* Undercarriage */}
-                  <rect x="10" y="40" width="100" height="5" rx="2" fill="#aa1111"/>
-                  {/* Wheels */}
-                  <circle cx="28" cy="48" r="8" fill="#222"/>
-                  <circle cx="28" cy="48" r="4" fill="#555"/>
-                  <circle cx="90" cy="48" r="8" fill="#222"/>
-                  <circle cx="90" cy="48" r="4" fill="#555"/>
-                  <circle cx="108" cy="48" r="6" fill="#222"/>
-                  <circle cx="108" cy="48" r="3" fill="#555"/>
-                  {/* Headlight */}
-                  <rect x="108" y="26" width="4" height="5" rx="1" fill="#ffe066"/>
-                  {/* Exhaust puff */}
-                  <circle cx="6" cy="22" r="3" fill="white" opacity="0.5"/>
-                  <circle cx="2" cy="18" r="2" fill="white" opacity="0.3"/>
-                </svg>
               </div>
             </div>
           </div>

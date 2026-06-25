@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import CatalogSection from '@/components/CatalogSection';
@@ -20,11 +20,30 @@ interface CartItem {
   quantity: number;
 }
 
+const CART_KEY = 'ekodrev_cart';
+
+function loadCart(): CartItem[] {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
+}
+
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [cartOpen, setCartOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(loadCart);
+
+  useEffect(() => {
+    localStorage.setItem(CART_KEY, JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Подхватываем изменения из других вкладок (Diy)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === CART_KEY) setCartItems(loadCart());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const navigateTo = (section: string) => {
     setActiveSection(section);
@@ -61,6 +80,7 @@ const Index = () => {
 
   const handleOrderSuccess = () => {
     setCartItems([]);
+    localStorage.removeItem(CART_KEY);
     setOrderOpen(false);
   };
 

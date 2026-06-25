@@ -163,8 +163,8 @@ export default function CatalogSection({ onAddToCart }: CatalogSectionProps) {
                 {/* Content */}
                 <div className="p-5 flex flex-col flex-1 gap-4">
                   <div>
-                    <h3 className="font-display text-xl font-semibold text-eco-800 mb-1">{product.name}</h3>
-                    <p className="text-eco-600 text-sm leading-relaxed">{product.description}</p>
+                    <h3 className="font-display text-2xl font-bold text-eco-800 mb-1">{product.name}</h3>
+                    <p className="text-eco-600 text-base leading-relaxed">{product.description}</p>
                   </div>
 
                   {/* Size selector */}
